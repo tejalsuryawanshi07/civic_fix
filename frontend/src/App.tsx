@@ -18,13 +18,13 @@ const issueTypes = [
 const steps = [
   { n: "01", title: "Pin the problem", text: "Identify where the issue is and describe what you noticed. A clear location makes a concern easier to understand." },
   { n: "02", title: "Add useful context", text: "Share a concise description and, where safe and appropriate, a photo that helps explain the issue." },
-  { n: "03", title: "Follow the next step", text: "CivicFix is designed to make updates easier to follow as the platform's reporting and tracking features are developed." },
+  { n: "03", title: "Follow the next step", text: "Submit a concern and return to your account to review the reports you have sent. Administrative updates will be added in a later phase." },
 ];
 
 const faqs = [
   { q: "What kind of issues can CivicFix help highlight?", a: "CivicFix is designed around shared neighbourhood concerns such as damaged roads, waste collection, street lighting, drainage, water leaks and public-space maintenance." },
   { q: "What should I include in a report?", a: "Include a clear description and a specific location. If it is safe and appropriate, a recent photo can help explain the issue. Avoid sharing personal or identifying information." },
-  { q: "Can I submit and track a report right now?", a: "Account registration and sign-in are available when Supabase is configured. Online report submission and live status tracking are still in development." },
+  { q: "Can I submit and track a report right now?", a: "Once the reports database migration is applied and Supabase is configured, signed-in citizens can submit a report and view their own submissions. Administrative review and live status updates are still in development." },
   { q: "Does CivicFix carry out repairs?", a: "No. CivicFix is intended to help residents raise awareness of local concerns. Repairs and official decisions remain the responsibility of the relevant civic authority." },
 ];
 
