@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { AlertCircle, ArrowLeft, ClipboardList, ExternalLink, FileImage, Filter, LogIn, MapPin, RefreshCw, Search, ShieldCheck } from "lucide-react";
+import { AlertCircle, ArrowLeft, ClipboardList, ExternalLink, FileImage, Filter, LogIn, MapPin, RefreshCw, Search, ShieldCheck, Save, History } from "lucide-react";
 import { AuthPanel } from "../auth/AuthPanel";
 import { supabase } from "../../utils/supabase";
 
 type Report = {
   id: string; user_id: string; title: string; description: string; category: string;
   location_text: string; photo_path: string | null;
+  assigned_department: string | null; admin_remarks: string | null;
   status: "submitted" | "in_review" | "resolved" | "rejected";
   created_at: string; updated_at: string;
 };
@@ -14,6 +15,7 @@ const categoryLabels: Record<string, string> = {
   roads: "Roads & footpaths", waste: "Waste & cleanliness", lighting: "Street lighting",
   water: "Water & drainage", parks: "Parks & public spaces", other: "Other local concern",
 };
+type HistoryEntry = { id: string; old_status: string | null; new_status: Report["status"]; assigned_department: string | null; admin_remarks: string | null; created_at: string };
 const statusLabels: Record<Report["status"], string> = {
   submitted: "Submitted", in_review: "In review", resolved: "Resolved", rejected: "Closed",
 };
@@ -29,6 +31,11 @@ export function AdminPage() {
   const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editStatus, setEditStatus] = useState<Report["status"]>("submitted");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [editRemarks, setEditRemarks] = useState("");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [saving, setSaving] = useState(false);
 
   const checkAccess = useCallback(async (activeSession: Session | null) => {
     setSession(activeSession);
@@ -46,7 +53,7 @@ export function AdminPage() {
     if (!supabase || role !== "admin") return;
     setLoading(true); setError("");
     const { data, error: loadError } = await supabase.from("reports")
-      .select("id,user_id,title,description,category,location_text,photo_path,status,created_at,updated_at")
+      .select("id,user_id,title,description,category,location_text,photo_path,status,assigned_department,admin_remarks,created_at,updated_at")
       .order("created_at", { ascending: false });
     if (loadError) setError(loadError.message);
     else setReports((data ?? []) as Report[]);
@@ -71,6 +78,38 @@ export function AdminPage() {
     );
   }, [reports, query, status, category]);
   const selected = visibleReports.find(report => report.id === selectedId) ?? null;
+  useEffect(() => {
+    if (!selected) { setHistory([]); return; }
+    setEditStatus(selected.status);
+    setEditDepartment(selected.assigned_department ?? "");
+    setEditRemarks(selected.admin_remarks ?? "");
+    if (!supabase) return;
+    let active = true;
+    void supabase.from("report_status_history")
+      .select("id,old_status,new_status,assigned_department,admin_remarks,created_at")
+      .eq("report_id", selected.id).order("created_at", { ascending: false })
+      .then(({ data, error: historyError }) => {
+        if (!active) return;
+        if (historyError) setError(historyError.message);
+        else setHistory((data ?? []) as HistoryEntry[]);
+      });
+    return () => { active = false; };
+  }, [selected?.id]);
+
+  const saveReportManagement = async () => {
+    if (!supabase || !selected) return;
+    setSaving(true); setError("");
+    const { error: saveError } = await supabase.rpc("admin_update_civicfix_report", {
+      p_report_id: selected.id,
+      p_status: editStatus,
+      p_department: editDepartment,
+      p_admin_remarks: editRemarks,
+    });
+    if (saveError) setError(saveError.message);
+    else await loadReports();
+    setSaving(false);
+  };
+
   const counts = useMemo(() => ({
     total: reports.length,
     submitted: reports.filter(report => report.status === "submitted").length,
@@ -98,7 +137,7 @@ export function AdminPage() {
         : !session ? <div className="admin-message"><LogIn /><div><strong>Sign in to continue</strong><p>Use your authorized CivicFix administrator account to access this dashboard.</p></div><AuthPanel /></div>
         : role !== "admin" ? <div className="admin-message"><ShieldCheck /><div><strong>Administrator access required</strong><p>This account does not have the admin role. Ask the project owner to grant access in Supabase.</p></div></div>
         : <>
-          <div className="admin-toolbar"><div><span className="section-label">REPORT MANAGEMENT / PHASE 1</span><h2>All citizen reports</h2></div><button type="button" className="admin-refresh" onClick={() => void loadReports()} disabled={loading}><RefreshCw size={15} className={loading ? "admin-spin" : ""} /> Refresh</button></div>
+          <div className="admin-toolbar"><div><span className="section-label">REPORT MANAGEMENT / PHASE 2</span><h2>All citizen reports</h2></div><button type="button" className="admin-refresh" onClick={() => void loadReports()} disabled={loading}><RefreshCw size={15} className={loading ? "admin-spin" : ""} /> Refresh</button></div>
           <div className="admin-stats">
             <article><span>Total reports</span><strong>{counts.total}</strong><small>All submissions</small></article>
             <article><span>Submitted</span><strong>{counts.submitted}</strong><small>Awaiting review</small></article>
@@ -129,6 +168,35 @@ export function AdminPage() {
               <div className="admin-detail-field"><span>REPORT ID</span><p className="admin-id">{selected.id}</p></div>
               <div className="admin-detail-field"><span>CITIZEN USER ID</span><p className="admin-id">{selected.user_id}</p></div>
               {selected.photo_path && <button className="admin-photo-button" type="button" onClick={() => void openPhoto(selected.photo_path!)}><FileImage size={16} /> View attached photo <ExternalLink size={13} /></button>}
+              <div className="admin-management-panel">
+                <span className="section-label">ADMIN ACTIONS</span>
+                <label>Report status
+                  <select value={editStatus} onChange={event => setEditStatus(event.target.value as Report["status"])}>
+                    <option value="submitted">Submitted</option><option value="in_review">In review</option><option value="resolved">Resolved</option><option value="rejected">Rejected / closed</option>
+                  </select>
+                </label>
+                <label>Assigned department
+                  <select value={editDepartment} onChange={event => setEditDepartment(event.target.value)}>
+                    <option value="">Not assigned</option><option value="Roads & Public Works">Roads & Public Works</option><option value="Sanitation">Sanitation</option><option value="Street Lighting">Street Lighting</option><option value="Water & Drainage">Water & Drainage</option><option value="Parks & Horticulture">Parks & Horticulture</option><option value="Other Civic Services">Other Civic Services</option>
+                  </select>
+                </label>
+                <label>Update / remarks for citizen
+                  <textarea value={editRemarks} onChange={event => setEditRemarks(event.target.value)} maxLength={1200} rows={4} placeholder="Add a useful progress update or explanation…" />
+                </label>
+                <button className="admin-save-button" type="button" onClick={() => void saveReportManagement()} disabled={saving}>
+                  <Save size={15} /> {saving ? "Saving…" : "Save report update"}
+                </button>
+              </div>
+              <div className="admin-history">
+                <span className="section-label"><History size={13} /> UPDATE HISTORY</span>
+                {history.length === 0 ? <p>No administrative updates yet.</p> : history.map(item => <article key={item.id}>
+                  <strong>{statusLabels[item.new_status] ?? item.new_status}</strong>
+                  <small>{new Date(item.created_at).toLocaleString()}</small>
+                  {item.assigned_department && <p>Department: {item.assigned_department}</p>}
+                  {item.admin_remarks && <p>{item.admin_remarks}</p>}
+                </article>)}
+              </div>
+
             </> : <div className="admin-empty admin-detail-empty"><ClipboardList size={28} /><strong>Select a report</strong><p>Choose a report from the list to inspect its details.</p></div>}</aside>
           </div>
         </>}
