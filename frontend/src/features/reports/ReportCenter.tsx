@@ -83,6 +83,12 @@ export function ReportCenter() {
     setNotice("");
     let photoPath: string | null = null;
     try {
+      if (photo && !["image/jpeg", "image/png", "image/webp"].includes(photo.type)) {
+        throw new Error("Please choose a JPEG, PNG or WebP image.");
+      }
+      if (photo && photo.size > 5 * 1024 * 1024) {
+        throw new Error("The photo must be 5 MB or smaller.");
+      }
       if (photo) {
         const extension = photo.name.split(".").pop()?.toLowerCase() || "jpg";
         photoPath = `${session.user.id}/${crypto.randomUUID()}.${extension}`;
@@ -107,8 +113,11 @@ export function ReportCenter() {
       if (fileInput) fileInput.value = "";
       setNotice("Your report has been submitted.");
       await loadReports(session.user.id);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "We couldn't submit your report. Please try again.");
+    } catch (cause: unknown) {
+      const details = cause && typeof cause === "object" && "message" in cause
+        ? String((cause as { message?: unknown }).message ?? "")
+        : cause instanceof Error ? cause.message : "";
+      setError(details || "We couldn't submit your report. Please try again. Check your connection and Supabase setup.");
     } finally {
       setSubmitting(false);
     }
