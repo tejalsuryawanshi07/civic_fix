@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AuthPanel } from "./features/auth/AuthPanel";
+import { ReportCenter } from "./features/reports/ReportCenter";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
   Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
@@ -53,7 +54,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const closeMenu = () => setMenuOpen(false);
-  const navItems = [["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
+  const navItems = [["Report an issue", "#report"], ["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
 
   return (
     <main>
@@ -97,6 +98,8 @@ export default function App() {
         <div className="section-heading"><div><div className="section-label">02 / WHAT CAN BE REPORTED</div><h2>Everyday issues.<br /><span>One shared place.</span></h2></div><p>From roads to public spaces, explore the kinds of neighbourhood concerns CivicFix is designed to bring into focus.</p></div>
         <div className="category-grid">{issueTypes.map((item, index) => { const Icon = item.icon; return <article className="category-card" key={item.title}><div className="category-card-top"><span>0{index + 1}</span><span className="category-icon"><Icon size={21} strokeWidth={1.7} /></span></div><h3>{item.title}</h3><p>{item.detail}</p><span className="card-arrow"><ArrowUpRight size={17} /></span></article>; })}</div>
       </div></section>
+
+      <ReportCenter />
 
       <section className="workflow-section section-pad" id="how-it-works"><div className="page-width">
         <div className="section-heading workflow-heading"><div><div className="section-label">03 / THE PROCESS</div><h2>From noticing<br />to <span>next steps.</span></h2></div><p>A simple, human approach to raising awareness of local issues. These are the intended steps for the CivicFix experience.</p></div>
