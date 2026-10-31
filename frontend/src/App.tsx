@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthPanel } from "./features/auth/AuthPanel";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
   Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
@@ -60,7 +61,7 @@ export default function App() {
         <nav className="nav-wrap" aria-label="Main navigation">
           <a className="brand" href="#home" onClick={closeMenu}><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a>
           <div className="desktop-nav">{navItems.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</div>
-          <a className="nav-cta" href="#how-it-works">Explore CivicFix <ArrowUpRight size={15} /></a>
+          <div className="nav-actions"><AuthPanel /><a className="nav-cta" href="#how-it-works">Explore CivicFix <ArrowUpRight size={15} /></a></div>
           <button className="menu-toggle" type="button" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </nav>
         {menuOpen && <div className="mobile-nav">{navItems.map(([label, href]) => <a key={href} href={href} onClick={closeMenu}>{label}<ArrowUpRight size={15} /></a>)}</div>}
