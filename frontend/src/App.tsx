@@ -50,9 +50,9 @@ function NeighbourhoodMap() {
   );
 }
 
-export default function App() {
-  return window.location.pathname === "/report" ? <ReportPage /> : <HomePage />;
+function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const navItems = [["Report an issue", "/report"], ["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
 
@@ -116,7 +116,8 @@ export default function App() {
   );
 }
 
-
+ 
 export default function App() {
-  return window.location.pathname.replace(/\\/+$/, "") === "/report" ? <ReportPage /> : <HomePage />;
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  return path === "/report" ? <ReportPage /> : <HomePage />;
 }
