@@ -9,6 +9,10 @@ type Report = {
   description: string;
   category: string;
   location_text: string;
+  latitude: number | null;
+  longitude: number | null;
+  location_accuracy_m: number | null;
+  location_captured_at: string | null;
   photo_path: string | null;
   assigned_department: string | null;
   admin_remarks: string | null;
@@ -39,6 +43,8 @@ export function ReportCenter() {
   const [category, setCategory] = useState("roads");
   const [location, setLocation] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number; accuracy: number; capturedAt: string } | null>(null);
+  const [locating, setLocating] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
@@ -47,7 +53,7 @@ export function ReportCenter() {
     setLoading(true);
     const { data, error: queryError } = await supabase
       .from("reports")
-      .select("id,title,description,category,location_text,photo_path,status,assigned_department,admin_remarks,created_at")
+      .select("id,title,description,category,location_text,latitude,longitude,location_accuracy_m,location_captured_at,photo_path,status,assigned_department,admin_remarks,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (queryError) setError(queryError.message);
@@ -106,6 +112,8 @@ export function ReportCenter() {
     setNotice("");
     let photoPath: string | null = null;
     try {
+      if (!coordinates) throw new Error("Please capture your current location before submitting.");
+      if (!photo) throw new Error("Please attach a photo of the issue as evidence.");
       if (photo && !["image/jpeg", "image/png", "image/webp"].includes(photo.type)) {
         throw new Error("Please choose a JPEG, PNG or WebP image.");
       }
@@ -125,13 +133,17 @@ export function ReportCenter() {
         description: description.trim(),
         category,
         location_text: location.trim(),
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        location_accuracy_m: coordinates.accuracy,
+        location_captured_at: coordinates.capturedAt,
         photo_path: photoPath,
       });
       if (insertError) {
         if (photoPath) await supabase.storage.from("report-photos").remove([photoPath]);
         throw insertError;
       }
-      setTitle(""); setDescription(""); setCategory("roads"); setLocation(""); setPhoto(null);
+      setTitle(""); setDescription(""); setCategory("roads"); setLocation(""); setPhoto(null); setCoordinates(null);
       const fileInput = document.getElementById("report-photo") as HTMLInputElement | null;
       if (fileInput) fileInput.value = "";
       setNotice("Your report has been submitted.");
@@ -171,9 +183,21 @@ export function ReportCenter() {
               <label>Issue category<select value={category} onChange={e => setCategory(e.target.value)}>{categories.map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
               <label>Location<input value={location} onChange={e => setLocation(e.target.value)} minLength={3} maxLength={300} required placeholder="Street, landmark or neighbourhood" /></label>
               <label>Description<textarea value={description} onChange={e => setDescription(e.target.value)} minLength={10} maxLength={3000} rows={5} required placeholder="Describe what happened and any useful details…" /></label>
-              <label className="report-photo-label" htmlFor="report-photo"><ImagePlus size={17} /><span>{photo ? photo.name : "Add a photo (optional)"}</span><input id="report-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setPhoto(e.target.files?.[0] ?? null)} /></label>
-              <small className="report-hint">JPEG, PNG or WebP · Up to 5 MB. Avoid faces, number plates and personal information.</small>
-              <button className="button button-primary report-submit" type="submit" disabled={submitting}>{submitting ? "Submitting…" : "Submit report"} <Send size={15} /></button>
+              <div className="report-location-verify">
+                <div><strong><MapPin size={15} /> On-site location check</strong><p>{coordinates ? `Location captured · ±${Math.round(coordinates.accuracy)} m accuracy` : "Allow location access while you are at the issue site."}</p></div>
+                <button type="button" className="report-location-button" onClick={() => {
+                  if (!navigator.geolocation) { setError("This browser does not support location access."); return; }
+                  setLocating(true); setError("");
+                  navigator.geolocation.getCurrentPosition(position => {
+                    setCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy, capturedAt: new Date(position.timestamp).toISOString() });
+                    setLocating(false);
+                  }, geoError => { setLocating(false); setError(geoError.code === 1 ? "Location permission was denied. Enable it in your browser to submit an on-site report." : "Couldn't get your location. Please try again outdoors."); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+                }} disabled={locating}>{locating ? "Checking…" : coordinates ? "Recapture location" : "Use my current location"}</button>
+                {coordinates && <small>{coordinates.latitude.toFixed(6)}, {coordinates.longitude.toFixed(6)} · captured {new Date(coordinates.capturedAt).toLocaleTimeString()}</small>}
+              </div>
+              <label className="report-photo-label" htmlFor="report-photo"><ImagePlus size={17} /><span>{photo ? photo.name : "Take / add issue photo (required)"}</span><input id="report-photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={e => setPhoto(e.target.files?.[0] ?? null)} /></label>
+              <small className="report-hint">Required evidence · JPEG, PNG or WebP · Up to 5 MB. Use a fresh photo of the reported issue; avoid faces and number plates.</small>
+              <button className="button button-primary report-submit" type="submit" disabled={submitting || locating || !coordinates || !photo}>{submitting ? "Submitting…" : "Submit report"} <Send size={15} /></button>
               {error && <p className="report-feedback error" role="alert">{error}</p>}
               {notice && <p className="report-feedback success" role="status">{notice}</p>}
             </form>
@@ -194,6 +218,7 @@ export function ReportCenter() {
                     {entry.admin_remarks && <p>{entry.admin_remarks}</p>}
                   </div>)}
                 </details>}
+                {report.latitude !== null && report.longitude !== null && <p className="report-admin-update"><strong>On-site location:</strong> {report.latitude.toFixed(6)}, {report.longitude.toFixed(6)} · ±{Math.round(report.location_accuracy_m ?? 0)} m</p>}
                 {report.photo_path && <button type="button" className="report-photo-link" onClick={() => void photoUrl(report.photo_path)}>View attached photo</button>}
               </article>)}</div>}
             </div>
