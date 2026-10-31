@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AuthPanel } from "./features/auth/AuthPanel";
 import { ReportPage } from "./features/reports/ReportPage";
+import { AdminPage } from "./features/admin/AdminPage";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
   Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
