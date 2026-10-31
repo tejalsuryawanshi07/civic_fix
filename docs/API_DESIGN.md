@@ -3,41 +3,37 @@
 ## 1. Conventions
 
 - Public API prefix: `/api/v1`.
-- Content type: JSON except upload endpoints.
-- Authentication: `Authorization: Bearer <access-token>`.
-- Use UUIDs internally and a separate public complaint reference for citizens.
-- Standard error shape: `{ "error": { "code": "...", "message": "...", "details": [] } }`.
-- Paginate collection endpoints with cursor or page/limit consistently; cap page size.
+- HTTPS and JSON; multipart only where an upload endpoint requires it.
+- Authentication: Supabase Auth access token or backend JWT, depending on the single auth approach selected during implementation.
 - Validate request bodies, query parameters, and path IDs.
 - Return UTC ISO-8601 timestamps.
-- Do not expose internal stack traces or raw AI prompts.
+- Standard error shape: `{ "error": { "code": "...", "message": "...", "details": [] } }`.
+- Paginate collection endpoints and cap page size.
 
 ## 2. Authentication
 
 | Method | Route | Access | Purpose |
 |---|---|---|---|
 | POST | /auth/register | Public | Create citizen account |
-| POST | /auth/login | Public, rate-limited | Authenticate and issue token |
-| POST | /auth/refresh | Refresh credential | Rotate access token (if refresh flow enabled) |
-| POST | /auth/logout | Authenticated | Revoke refresh session (if implemented) |
+| POST | /auth/login | Public, rate-limited | Authenticate |
 | GET | /auth/me | Authenticated | Current profile and role |
+| POST | /auth/logout | Authenticated | End session |
 
-Admin and department staff accounts should be provisioned or invited through controlled workflows; public registration must not allow a caller to select privileged roles.
+Choose Supabase Auth or backend-managed JWT during implementation, not both. Public registration must never allow a caller to choose an admin or department-staff role.
 
 ## 3. Citizen and complaint endpoints
 
 | Method | Route | Access | Purpose |
 |---|---|---|---|
-| POST | /uploads/authorize | Citizen | Obtain short-lived restricted upload authorization |
 | POST | /complaints | Citizen | Create complaint and metadata |
 | GET | /complaints/mine | Citizen | List own complaints |
 | GET | /complaints/:id | Owner/admin/assigned staff | Complaint detail |
 | GET | /complaints/:id/timeline | Owner/admin/assigned staff | Status history |
-| GET | /complaints/:id/analysis | Owner/admin/assigned staff | AI findings and review state |
+| GET | /complaints/:id/analysis | Owner/admin/assigned staff | AI recommendations and analysis state |
 | GET | /complaints/nearby | Authenticated | Sanitized nearby reports |
 | GET | /complaints/:id/duplicates | Owner/admin/assigned staff | Possible duplicate candidates |
 
-Complaint creation should accept media object references already uploaded through the authorized flow. Validate that each object belongs to the authenticated user and has passed storage/file checks.
+Image upload can be handled through a backend endpoint or a restricted signed Supabase Storage upload. Validate ownership and file metadata before associating images with a complaint.
 
 ## 4. Administrator endpoints
 
@@ -45,7 +41,7 @@ Complaint creation should accept media object references already uploaded throug
 |---|---|---|---|
 | GET | /admin/complaints | Admin | Filter/search all complaints |
 | GET | /admin/review-queue | Admin | Complaints awaiting human review |
-| POST | /admin/complaints/:id/review | Admin | Approve/modify/reject AI recommendations |
+| POST | /admin/complaints/:id/review | Admin | Approve/modify/reject recommendations |
 | POST | /admin/complaints/:id/assignments | Admin | Create human-approved assignment |
 | POST | /admin/complaints/:id/escalations | Admin | Record escalation action |
 | GET | /admin/analytics/summary | Admin | Aggregate operational metrics |
@@ -53,7 +49,7 @@ Complaint creation should accept media object references already uploaded throug
 | GET | /admin/departments | Admin | List verified department directory |
 | POST/PATCH | /admin/departments | Admin | Maintain verified department records |
 
-The review endpoint must distinguish approval, modification, and rejection. Rejection requires a reason. An AI recommendation must never create an assignment automatically.
+Rejection requires a reason. AI recommendations never create assignments automatically.
 
 ## 5. Department staff endpoints
 
@@ -66,7 +62,7 @@ The review endpoint must distinguish approval, modification, and rejection. Reje
 | POST | /department/complaints/:id/evidence | Assigned staff | Attach resolution evidence |
 | POST | /department/complaints/:id/resolve | Assigned staff | Submit resolution evidence and request resolution |
 
-Backend checks department membership and assignment on every request. Staff cannot assign a complaint to another department or modify AI recommendation records.
+Backend checks department membership and assignment on every request.
 
 ## 6. Notifications
 
@@ -76,19 +72,13 @@ Backend checks department membership and assignment on every request. Staff cann
 | PATCH | /notifications/:id/read | Owner | Mark notification read |
 | PATCH | /notifications/read-all | Authenticated | Mark own notifications read |
 
-## 7. Internal service endpoints
+In-app notifications are sufficient for the first public demo. External email/SMS delivery can be added later.
 
-Private network only; service-to-service authentication required.
+## 7. AI integration
 
-| Method | Route | Caller | Purpose |
-|---|---|---|---|
-| POST | /internal/v1/ai/analyze | Node worker | Submit analysis request |
-| GET | /internal/v1/health | Orchestrator/ops | AI service health |
-| GET | /internal/v1/ready | Orchestrator/ops | Model/service readiness |
+AI is an internal backend module, not a separately deployed service. The backend calls the configured hosted AI provider using a server-side API key.
 
-AI request includes complaint ID, analysis version, description, authorized image references, normalized coordinates if available, and a bounded list of candidate complaint summaries for duplicate comparison. Avoid sending unnecessary citizen profile data.
-
-AI response includes workflow ID, schema version, per-agent status, category/severity recommendations, evidence/rationale, duplicate candidates, department recommendation or no-match, and timing/model metadata. It must not contain an instruction to auto-reject or auto-assign.
+The backend sends only the complaint text, relevant image, and minimum context needed. It validates the provider response and stores recommendations. If the provider is unavailable or not configured, the complaint is still created and marked as awaiting manual review.
 
 ## 8. Complaint lifecycle API rules
 
@@ -101,14 +91,14 @@ Allowed transitions are enforced by backend domain logic, not frontend controls:
 - RESOLVED → REOPENED
 - REOPENED → UNDER_REVIEW or ASSIGNED, according to policy
 
-System processing may mark analysis completion, but assignment and rejection are human-authorized. Every transition creates a status-history record.
+Assignment and rejection are human-authorized. Every transition creates a status-history record.
 
 ## 9. Security requirements
 
 - RBAC and resource ownership on all endpoints.
 - Rate limit login, registration, upload authorization, and complaint creation.
 - Validate upload size, content type, file signature, and storage ownership.
-- Use idempotency keys for complaint creation and review/assignment commands where retries are possible.
 - Do not trust client-supplied role, user ID, AI score, or department identity.
 - Avoid returning exact citizen coordinates in public/nearby views.
 - Apply CORS allowlists, Helmet/security headers, and request-size limits.
+- Keep Supabase service-role and AI provider keys on the backend only.
