@@ -107,11 +107,13 @@ export function AuthPanel() {
     else setMessage("You have been signed out.");
   };
 
+  const displayName = String(session?.user.user_metadata?.full_name ?? "").trim() || session?.user.email?.split("@")[0] || "Account";
+
   return (
     <>
       {session ? (
         <div className="auth-signed-in">
-          <span className="auth-user" title={session.user.email ?? "Signed in"}><UserRound size={15} /> {session.user.email}</span>
+          <span className="auth-user" title="Signed in"><UserRound size={15} /> {displayName}</span>
           <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /><span>Sign out</span></button>
         </div>
       ) : (
