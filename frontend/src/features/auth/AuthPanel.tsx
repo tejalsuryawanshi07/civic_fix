@@ -74,6 +74,13 @@ export function AuthPanel() {
     }
   };
 
+  const openAuth = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setError("");
+    setMessage("");
+    setIsOpen(true);
+  };
+
   const signOut = async () => {
     if (!supabase) return;
     const { error: authError } = await supabase.auth.signOut();
@@ -92,9 +99,10 @@ export function AuthPanel() {
           <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /> Sign out</button>
         </div>
       ) : (
-        <button className="auth-trigger" type="button" onClick={() => { setIsOpen(true); setError(""); setMessage(""); }}>
-          <LogIn size={15} /> Sign in
-        </button>
+        <div className="auth-entry-actions">
+          <button className="auth-trigger" type="button" onClick={() => openAuth("sign-in")}><LogIn size={15} /> Sign in</button>
+          <button className="auth-trigger auth-trigger-primary" type="button" onClick={() => openAuth("sign-up")}>Sign up</button>
+        </div>
       )}
 
       {isOpen && !session && (
