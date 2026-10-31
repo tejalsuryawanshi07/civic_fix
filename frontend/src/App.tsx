@@ -51,7 +51,7 @@ function NeighbourhoodMap() {
 }
 
 export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  return window.location.pathname === "/report" ? <ReportPage /> : <HomePage />;
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const closeMenu = () => setMenuOpen(false);
   const navItems = [["Report an issue", "/report"], ["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
