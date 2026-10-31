@@ -52,7 +52,7 @@ Development/testing:
 - eslint, prettier
 - vitest, supertest
 
-Authentication decision: choose one clear approach during implementation. Supabase Auth is simplest to operate with Supabase; alternatively, implement backend-managed JWT auth. Do not implement both without a real requirement.
+Authentication decision: CivicFix uses Supabase Auth with email/password for citizen accounts. The browser uses only the Supabase project URL and publishable key. Supabase manages passwords and sessions; the `public.profiles` table stores application profile data. Public registration always creates the `citizen` role. Admin and department-staff roles must be assigned only through a trusted administrative workflow. Do not add backend-managed JWT authentication in parallel.
 
 ## 4. Hosted AI
 
@@ -71,7 +71,17 @@ If no AI key is configured, the application should still work: save complaints a
 - Prefer backend-mediated database/storage access for the initial simpler trust boundary.
 - Store Supabase URL and service-role key only in backend secrets. Never expose the service-role key in Vite variables.
 
-## 6. Environment variables
+## 6. Supabase Auth and database migration
+
+1. In the Supabase dashboard, open **Authentication → Providers → Email** and ensure email/password sign-in is enabled.
+2. Configure the Site URL and allowed redirect URLs for your local Vite URL and deployed Vercel domain under **Authentication → URL Configuration**.
+3. Open **SQL Editor** and run the migration in `supabase/migrations/20261031000100_create_profiles.sql`.
+4. In the frontend hosting environment, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` using the project's values. These are public browser settings; never add a secret/service-role key to a `VITE_*` variable.
+5. Install frontend dependencies with `npm install` from `frontend/`.
+
+The migration creates `public.profiles`, enables row-level security, allows authenticated users to read only their own profile, and creates a profile with the `citizen` role when a new Supabase Auth user is registered. It deliberately does not allow clients to insert profiles or update roles.
+
+## 7. Environment variables
 
 Example names (values must be configured in hosting dashboards, not committed):
 - `SUPABASE_URL`
@@ -85,7 +95,7 @@ Example names (values must be configured in hosting dashboards, not committed):
 
 Frontend may need a public `VITE_API_BASE_URL` pointing to the Render API. Never put private keys in any `VITE_*` variable.
 
-## 7. Deployment steps
+## 8. Deployment steps
 
 1. Create Supabase project and configure schema and private image bucket.
 2. Push the repository to GitHub.
@@ -96,7 +106,7 @@ Frontend may need a public `VITE_API_BASE_URL` pointing to the Render API. Never
 7. Run a public smoke test: register/login, submit complaint, upload image, view complaint, review as admin, assign, and update status.
 8. Share the Vercel URL. Provide a safe demo account or demo data for reviewers; never publish an admin password in the repository.
 
-## 8. Not needed for the first deployment
+## 9. Not needed for the first deployment
 
 - Docker or Docker Compose.
 - Redis, BullMQ, or Kafka.
