@@ -97,3 +97,51 @@
   .auth-backdrop{align-items:flex-start;padding-top:12px;padding-bottom:12px}
   .auth-dialog{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}
 }
+
+/* Citizen reporting */
+.report-section{background:#F4F8FA}
+.report-heading{margin-bottom:38px}
+.report-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start;gap:22px}
+.report-form,.my-reports{padding:25px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(16,43,67,.045)}
+.report-form{display:grid;gap:15px}
+.report-form-heading,.my-reports-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.report-form-heading>span{color:var(--blue);font-size:9px;font-weight:800;letter-spacing:.12em}
+.report-form-heading small{max-width:60%;overflow:hidden;color:var(--muted);font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.report-form-heading small i{display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;background:#4B9B67}
+.report-form>label:not(.report-photo-label){display:grid;gap:7px;color:var(--navy);font-size:11px;font-weight:800}
+.report-form input:not([type=file]),.report-form select,.report-form textarea{width:100%;min-height:43px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:#FBFCFD;color:var(--navy);font:500 12px 'Plus Jakarta Sans',sans-serif}
+.report-form textarea{resize:vertical;min-height:110px;line-height:1.6}
+.report-form input:focus,.report-form select:focus,.report-form textarea:focus{outline:3px solid rgba(50,137,207,.17);border-color:var(--bright)}
+.report-photo-label{display:flex;align-items:center;gap:9px;min-height:46px;padding:11px 13px;border:1px dashed #AFC4D3;border-radius:8px;color:var(--blue);font-size:11px;font-weight:800;cursor:pointer}
+.report-photo-label input{width:1px;height:1px;position:absolute;opacity:0;pointer-events:none}
+.report-hint{margin-top:-10px;color:var(--muted);font-size:9px;line-height:1.6}
+.report-submit{width:100%;border:0;cursor:pointer}
+.report-submit:disabled{opacity:.65;cursor:wait}
+.report-feedback{margin:0;padding:11px 12px;border-radius:8px;font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+.report-feedback.error{background:#FFF0EF;color:#A13B32}
+.report-feedback.success{background:#EEF7F0;color:#28633B}
+.my-reports-heading{align-items:flex-end;margin-bottom:6px}
+.my-reports-heading h3{margin:7px 0 0;color:var(--navy);font-size:21px;letter-spacing:-.04em}
+.report-count{padding:6px 9px;border-radius:999px;background:var(--bg);color:var(--muted);font-size:9px;font-weight:800}
+.reports-empty{display:flex;min-height:220px;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--muted);text-align:center;font-size:11px}
+.reports-empty svg{color:var(--bright)}
+.reports-empty strong{color:var(--navy);font-size:13px}
+.reports-empty p{margin:0}
+.report-list{display:grid}
+.report-item{padding:17px 0;border-bottom:1px solid var(--line)}
+.report-item:last-child{border-bottom:0}
+.report-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:9px;font-weight:700}
+.report-status{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:999px;background:#EEF4F8;color:#3C6D91;font-size:8px;font-weight:800;white-space:nowrap}
+.status-resolved{background:#EEF7F0;color:#34724A}
+.status-rejected{background:#FFF0EF;color:#A13B32}
+.report-item h4{margin:11px 0 5px;color:var(--navy);font-size:14px;letter-spacing:-.02em}
+.report-item>p{margin:0 0 7px;color:var(--muted);font-size:10px}
+.report-item>small{color:#8A9AA6;font-size:9px}
+.report-photo-link{display:block;margin-top:9px;padding:0;border:0;background:transparent;color:var(--blue);font:700 10px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.report-gate{display:flex;align-items:center;gap:15px;max-width:650px;min-height:125px;padding:25px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--blue)}
+.report-gate>div{min-width:0}
+.report-gate strong{color:var(--navy);font-size:13px}
+.report-gate p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.7}
+.report-safety{display:flex;align-items:flex-start;gap:9px;margin-top:19px;color:var(--muted);font-size:10px;line-height:1.7}
+.report-safety svg{flex:0 0 auto;color:var(--blue)}
+@media(max-width:740px){.report-layout{grid-template-columns:1fr}.report-form,.my-reports{padding:20px}.report-form-heading{align-items:flex-start;flex-direction:column}.report-form-heading small{max-width:100%}}
