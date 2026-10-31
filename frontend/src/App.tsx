@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AuthPanel } from "./features/auth/AuthPanel";
 import { ReportPage } from "./features/reports/ReportPage";
-import { ReportCenter } from "./features/reports/ReportCenter";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
   Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
@@ -115,4 +114,9 @@ export default function App() {
       <footer className="site-footer"><div className="page-width footer-inner"><a className="brand footer-brand" href="#home"><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a><p>Designed around better neighbourhoods.</p><div className="footer-links"><a href="#mission">Our mission</a><a href="/report">Report an issue</a><a href="#categories">Issue types</a><a href="#faq">Support</a></div><span className="copyright">© {new Date().getFullYear()} CIVICFIX</span></div></footer>
     </main>
   );
+}
+
+
+export default function App() {
+  return window.location.pathname.replace(/\\/+$/, "") === "/report" ? <ReportPage /> : <HomePage />;
 }
