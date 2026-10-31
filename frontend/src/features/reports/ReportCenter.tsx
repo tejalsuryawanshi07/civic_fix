@@ -10,6 +10,8 @@ type Report = {
   category: string;
   location_text: string;
   photo_path: string | null;
+  assigned_department: string | null;
+  admin_remarks: string | null;
   status: "submitted" | "in_review" | "resolved" | "rejected";
   created_at: string;
 };
@@ -20,6 +22,8 @@ const categories = [
   ["parks", "Parks & public spaces"], ["other", "Other local concern"],
 ];
 
+type HistoryEntry = { id: string; old_status: string | null; new_status: Report["status"]; assigned_department: string | null; admin_remarks: string | null; created_at: string };
+
 const statusLabels: Record<Report["status"], string> = {
   submitted: "Submitted", in_review: "In review", resolved: "Resolved", rejected: "Closed",
 };
@@ -27,6 +31,7 @@ const statusLabels: Record<Report["status"], string> = {
 export function ReportCenter() {
   const [session, setSession] = useState<Session | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
+  const [historyByReport, setHistoryByReport] = useState<Record<string, HistoryEntry[]>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState("");
@@ -42,11 +47,29 @@ export function ReportCenter() {
     setLoading(true);
     const { data, error: queryError } = await supabase
       .from("reports")
-      .select("id,title,description,category,location_text,photo_path,status,created_at")
+      .select("id,title,description,category,location_text,photo_path,status,assigned_department,admin_remarks,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (queryError) setError(queryError.message);
-    else setReports((data ?? []) as Report[]);
+    else {
+      const nextReports = (data ?? []) as Report[];
+      setReports(nextReports);
+      if (nextReports.length) {
+        const { data: historyData, error: historyError } = await supabase
+          .from("report_status_history")
+          .select("id,report_id,old_status,new_status,assigned_department,admin_remarks,created_at")
+          .in("report_id", nextReports.map(report => report.id))
+          .order("created_at", { ascending: false });
+        if (historyError) setError(historyError.message);
+        else {
+          const grouped: Record<string, HistoryEntry[]> = {};
+          for (const entry of (historyData ?? []) as (HistoryEntry & { report_id: string })[]) {
+            (grouped[entry.report_id] ??= []).push(entry);
+          }
+          setHistoryByReport(grouped);
+        }
+      } else setHistoryByReport({});
+    }
     setLoading(false);
   }, []);
 
@@ -161,6 +184,16 @@ export function ReportCenter() {
               ) : <div className="report-list">{reports.map(report => <article className="report-item" key={report.id}>
                 <div className="report-item-top"><span>{categories.find(([value]) => value === report.category)?.[1] ?? "Local concern"}</span><span className={`report-status status-${report.status}`}>{report.status === "resolved" ? <CheckCircle2 size={12} /> : <Clock3 size={12} />}{statusLabels[report.status]}</span></div>
                 <h4>{report.title}</h4><p>{report.location_text}</p><small>{new Date(report.created_at).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}</small>
+                {report.assigned_department && <p className="report-admin-update"><strong>Assigned to:</strong> {report.assigned_department}</p>}
+                {report.admin_remarks && <p className="report-admin-update"><strong>Latest update:</strong> {report.admin_remarks}</p>}
+                {(historyByReport[report.id] ?? []).length > 0 && <details className="report-history-details">
+                  <summary>View progress history ({historyByReport[report.id].length})</summary>
+                  {historyByReport[report.id].map(entry => <div className="report-history-entry" key={entry.id}>
+                    <strong>{statusLabels[entry.new_status]}</strong><small>{new Date(entry.created_at).toLocaleString()}</small>
+                    {entry.assigned_department && <p>Department: {entry.assigned_department}</p>}
+                    {entry.admin_remarks && <p>{entry.admin_remarks}</p>}
+                  </div>)}
+                </details>}
                 {report.photo_path && <button type="button" className="report-photo-link" onClick={() => void photoUrl(report.photo_path)}>View attached photo</button>}
               </article>)}</div>}
             </div>
