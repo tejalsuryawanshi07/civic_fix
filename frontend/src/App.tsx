@@ -1,21 +1,7 @@
 import { useState } from "react";
 import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  CheckCircle2,
-  ChevronDown,
-  ClipboardList,
-  Construction,
-  Droplets,
-  Lightbulb,
-  MapPin,
-  Menu,
-  MessageSquareText,
-  ShieldCheck,
-  Trash2,
-  Trees,
-  X,
+  ArrowDown, ArrowRight, ArrowUpRight, ChevronDown, Construction,
+  Droplets, Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
 } from "lucide-react";
 
 const issueTypes = [
@@ -42,158 +28,78 @@ const faqs = [
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <main>
       <nav className="nav wrap" aria-label="Main navigation">
-        <a className="brand" href="#home" aria-label="CivicFix home" onClick={closeMenu}>
-          <span className="brand-mark">C</span> CIVICFIX
-        </a>
+        <a className="brand" href="#home" aria-label="CivicFix home" onClick={closeMenu}><span className="brand-mark">C</span> CIVICFIX</a>
         <div className="nav-links">
-          <a href="#issues">ISSUES</a>
-          <a href="#how-it-works">HOW IT WORKS</a>
-          <a href="#about">ABOUT</a>
-          <a href="#faq">FAQ</a>
+          <a href="#issues">ISSUES</a><a href="#how-it-works">HOW IT WORKS</a><a href="#about">ABOUT</a><a href="#faq">FAQ</a>
         </div>
         <a className="nav-cta" href="#how-it-works">EXPLORE THE PROCESS <ArrowRight size={15} /></a>
-        <button className="menu-button" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X /> : <Menu />}
-        </button>
+        <button className="menu-button" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
       </nav>
-      {menuOpen && (
-        <div className="mobile-menu">
-          <a href="#issues" onClick={closeMenu}>ISSUES <ArrowUpRight size={16} /></a>
-          <a href="#how-it-works" onClick={closeMenu}>HOW IT WORKS <ArrowUpRight size={16} /></a>
-          <a href="#about" onClick={closeMenu}>ABOUT <ArrowUpRight size={16} /></a>
-          <a href="#faq" onClick={closeMenu}>FAQ <ArrowUpRight size={16} /></a>
-        </div>
-      )}
+      {menuOpen && <div className="mobile-menu">
+        <a href="#issues" onClick={closeMenu}>ISSUES <ArrowUpRight size={16} /></a>
+        <a href="#how-it-works" onClick={closeMenu}>HOW IT WORKS <ArrowUpRight size={16} /></a>
+        <a href="#about" onClick={closeMenu}>ABOUT <ArrowUpRight size={16} /></a>
+        <a href="#faq" onClick={closeMenu}>FAQ <ArrowUpRight size={16} /></a>
+      </div>}
 
       <section className="hero wrap" id="home">
-        <div className="eyebrow"><span className="eyebrow-dot" /> A CLEARER WAY TO RAISE LOCAL ISSUES</div>
+        <div className="eyebrow"><span className="eyebrow-dot" /> A COMMUNITY-LED WAY TO RAISE LOCAL ISSUES</div>
         <div className="hero-grid">
-          <div>
-            <p className="hero-kicker">YOUR NEIGHBOURHOOD, IN FOCUS.</p>
-            <h1>YOUR CITY.<br />YOUR <span>VOICE.</span><br />YOUR FIX.</h1>
+          <div className="hero-main">
+            <p className="hero-kicker">CIVICFIX / YOUR LOCAL ISSUE, MADE VISIBLE</p>
+            <h1>SEE A PROBLEM?<br /><span>MAKE IT VISIBLE.</span></h1>
+            <p className="hero-subline">A simpler starting point for better neighbourhoods.</p>
           </div>
           <div className="hero-aside">
             <p className="hero-copy">A pothole on your route. A streetlight that has gone dark. Waste left uncollected. CivicFix is being built to help residents bring everyday civic problems into view—and follow what happens next.</p>
-            <a className="button button-blue" href="#how-it-works">SEE HOW IT WORKS <ArrowRight size={17} /></a>
+            <a className="button button-blue" href="#how-it-works">DISCOVER HOW IT WORKS <ArrowRight size={17} /></a>
             <div className="hero-note"><MapPin size={15} /> LOCAL ISSUES. CLEAR INFORMATION. SHARED PROGRESS.</div>
           </div>
         </div>
-        <div className="hero-bottom">
-          <span>NOTICE IT. DESCRIBE IT. FOLLOW IT.</span>
-          <a href="#issues" aria-label="Scroll to issue categories"><ArrowDown /></a>
-        </div>
+        <div className="hero-bottom"><span>NOTICE IT. DESCRIBE IT. FOLLOW IT.</span><a href="#issues" aria-label="Scroll to issue categories"><ArrowDown /></a></div>
       </section>
 
       <section className="intro wrap" id="about">
         <div className="section-label">/ WHY CIVICFIX</div>
         <div className="intro-content">
           <h2>SMALL ISSUES.<br />SHARED <span>IMPACT.</span></h2>
-          <div>
-            <p>Good neighbourhoods depend on everyday things working well. But when a public problem goes unnoticed or residents do not know where to raise it, it can remain unresolved.</p>
-            <p>CivicFix aims to make that first step simpler: describe the issue, identify its location and make it easier to follow the response.</p>
-          </div>
+          <div><p>Good neighbourhoods depend on everyday things working well. But when a public problem goes unnoticed or residents do not know where to raise it, it can remain unresolved.</p><p>CivicFix aims to make that first step simpler: describe the issue, identify its location and make it easier to follow the response.</p></div>
         </div>
       </section>
 
-      <section className="issues-section" id="issues">
-        <div className="wrap">
-          <div className="section-topline">
-            <div>
-              <div className="section-label">/ WHAT CAN BE REPORTED</div>
-              <h2>EVERYDAY PROBLEMS.<br /><span>VISIBLE TO ALL.</span></h2>
-            </div>
-            <p className="section-summary">Civic concerns often start small. These are examples of the local issues CivicFix is designed to help bring forward.</p>
-          </div>
-          <div className="issue-grid">
-            {issueTypes.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <article className="issue-card" key={item.title}>
-                  <div className="issue-card-top"><span>0{index + 1}</span><Icon size={22} strokeWidth={1.5} /></div>
-                  <h3>{item.title}</h3>
-                  <p>{item.detail}</p>
-                  <span className="issue-rule" />
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <section className="issues-section" id="issues"><div className="wrap">
+        <div className="section-topline"><div><div className="section-label">/ WHAT CAN BE REPORTED</div><h2>EVERYDAY PROBLEMS.<br /><span>VISIBLE TO ALL.</span></h2></div><p className="section-summary">Civic concerns often start small. These are examples of the local issues CivicFix is designed to help bring forward.</p></div>
+        <div className="issue-grid">{issueTypes.map((item, index) => { const Icon = item.icon; return <article className="issue-card" key={item.title}><div className="issue-card-top"><span>0{index + 1}</span><Icon size={22} strokeWidth={1.5} /></div><h3>{item.title}</h3><p>{item.detail}</p><span className="issue-rule" /></article>; })}</div>
+      </div></section>
 
-      <section className="steps-section" id="how-it-works">
-        <div className="wrap">
-          <div className="section-heading">
-            <div className="section-label">/ HOW IT WORKS</div>
-            <div>
-              <h2>FROM NOTICE<br />TO <span>NEXT STEP.</span></h2>
-              <p className="section-summary">A straightforward path from seeing a problem to understanding its status.</p>
-            </div>
-          </div>
-          <div className="steps-grid">
-            {steps.map((step) => (
-              <article className="step" key={step.number}>
-                <span className="step-number">{step.number}</span>
-                <h3>{step.title}</h3>
-                <p>{step.detail}</p>
-                <ArrowDown className="step-arrow" size={21} />
-              </article>
-            ))}
-          </div>
-          <div className="process-note"><ShieldCheck size={18} /><p><strong>Be safe and considerate.</strong> Never put yourself at risk to document an issue. Do not trespass or include private, identifying information in a public report.</p></div>
-        </div>
-      </section>
+      <section className="steps-section" id="how-it-works"><div className="wrap">
+        <div className="section-heading"><div className="section-label">/ HOW IT WORKS</div><div><h2>FROM NOTICE<br />TO <span>NEXT STEP.</span></h2><p className="section-summary">A straightforward path from seeing a problem to understanding its status.</p></div></div>
+        <div className="steps-grid">{steps.map(step => <article className="step" key={step.number}><span className="step-number">{step.number}</span><h3>{step.title}</h3><p>{step.detail}</p><ArrowDown className="step-arrow" size={21} /></article>)}</div>
+        <div className="process-note"><ShieldCheck size={18} /><p><strong>Be safe and considerate.</strong> Never put yourself at risk to document an issue. Do not trespass or include private, identifying information in a public report.</p></div>
+      </div></section>
 
-      <section className="principles wrap">
-        <div className="section-label">/ WHAT CIVICFIX STANDS FOR</div>
-        <div className="principle-list">
-          <article><span>01 / CLARITY</span><h3>Make the problem easy to understand.</h3><p>Useful details and a clear location help turn a vague concern into something actionable.</p></article>
-          <article><span>02 / VISIBILITY</span><h3>Make progress easier to follow.</h3><p>Residents should not be left guessing about whether a concern has been seen or what happens next.</p></article>
-          <article><span>03 / COMMUNITY</span><h3>Better public spaces are shared work.</h3><p>People who notice local problems can help bring attention to the places everyone uses.</p></article>
-        </div>
-      </section>
+      <section className="principles wrap"><div className="section-label">/ WHAT CIVICFIX STANDS FOR</div><div className="principle-list">
+        <article><span>01 / CLARITY</span><h3>Make the problem easy to understand.</h3><p>Useful details and a clear location help turn a vague concern into something actionable.</p></article>
+        <article><span>02 / VISIBILITY</span><h3>Make progress easier to follow.</h3><p>Residents should not be left guessing about whether a concern has been seen or what happens next.</p></article>
+        <article><span>03 / COMMUNITY</span><h3>Better public spaces are shared work.</h3><p>People who notice local problems can help bring attention to the places everyone uses.</p></article>
+      </div></section>
 
-      <section className="faq-section" id="faq">
-        <div className="wrap faq-layout">
-          <div>
-            <div className="section-label">/ GOOD TO KNOW</div>
-            <h2>QUESTIONS,<br /><span>ANSWERED.</span></h2>
-            <p className="faq-intro">A little more about the purpose and current scope of CivicFix.</p>
-          </div>
-          <div className="faq-list">
-            {faqs.map((faq) => (
-              <details className="faq-item" key={faq.question}>
-                <summary>{faq.question}<ChevronDown size={18} /></summary>
-                <p>{faq.answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="faq-section" id="faq"><div className="wrap faq-layout">
+        <div><div className="section-label">/ GOOD TO KNOW</div><h2>QUESTIONS,<br /><span>ANSWERED.</span></h2><p className="faq-intro">A little more about the purpose and current scope of CivicFix.</p></div>
+        <div className="faq-list">{faqs.map(faq => <details className="faq-item" key={faq.question}><summary>{faq.question}<ChevronDown size={18} /></summary><p>{faq.answer}</p></details>)}</div>
+      </div></section>
 
-      <section className="closing wrap" id="get-started">
-        <div className="section-label">/ YOUR CITY IS WORTH IT</div>
-        <div className="closing-row">
-          <h2>NOTICE MORE.<br />CARE <span>TOGETHER.</span></h2>
-          <div className="closing-aside">
-            <p>Change can start with one person paying attention. Learn how CivicFix is designed to help make local concerns visible.</p>
-            <a className="button button-dark" href="#how-it-works">EXPLORE THE PROCESS <ArrowRight size={17} /></a>
-            <small>A CIVIC PLATFORM IN DEVELOPMENT.</small>
-          </div>
-        </div>
-      </section>
+      <section className="closing wrap" id="get-started"><div className="section-label">/ YOUR CITY IS WORTH IT</div><div className="closing-row">
+        <h2>NOTICE MORE.<br />CARE <span>TOGETHER.</span></h2>
+        <div className="closing-aside"><p>Change can start with one person paying attention. Learn how CivicFix is designed to help make local concerns visible.</p><a className="button button-dark" href="#how-it-works">EXPLORE THE PROCESS <ArrowRight size={17} /></a><small>A CIVIC PLATFORM IN DEVELOPMENT.</small></div>
+      </div></section>
 
-      <footer className="footer wrap">
-        <a className="brand" href="#home"><span className="brand-mark">C</span> CIVICFIX</a>
-        <span>MADE FOR BETTER COMMUNITIES.</span>
-        <a href="#faq">ABOUT THIS PREVIEW <ArrowUpRight size={13} /></a>
-        <span>© {new Date().getFullYear()} CIVICFIX</span>
-      </footer>
+      <footer className="footer wrap"><a className="brand" href="#home"><span className="brand-mark">C</span> CIVICFIX</a><span>MADE FOR BETTER COMMUNITIES.</span><a href="#faq">ABOUT THIS PREVIEW <ArrowUpRight size={13} /></a><span>© {new Date().getFullYear()} CIVICFIX</span></footer>
     </main>
   );
 }
