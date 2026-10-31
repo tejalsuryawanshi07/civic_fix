@@ -6,7 +6,7 @@ import { supabase } from "../../utils/supabase";
 
 type Report = {
   id: string; user_id: string; title: string; description: string; category: string;
-  location_text: string; photo_path: string | null;
+  location_text: string; latitude: number | null; longitude: number | null; location_accuracy_m: number | null; location_captured_at: string | null; photo_path: string | null;
   assigned_department: string | null; admin_remarks: string | null;
   status: "submitted" | "in_review" | "resolved" | "rejected";
   created_at: string; updated_at: string;
@@ -53,7 +53,7 @@ export function AdminPage() {
     if (!supabase || role !== "admin") return;
     setLoading(true); setError("");
     const { data, error: loadError } = await supabase.from("reports")
-      .select("id,user_id,title,description,category,location_text,photo_path,status,assigned_department,admin_remarks,created_at,updated_at")
+      .select("id,user_id,title,description,category,location_text,latitude,longitude,location_accuracy_m,location_captured_at,photo_path,status,assigned_department,admin_remarks,created_at,updated_at")
       .order("created_at", { ascending: false });
     if (loadError) setError(loadError.message);
     else setReports((data ?? []) as Report[]);
@@ -171,6 +171,7 @@ export function AdminPage() {
               <div className="admin-detail-top"><span className="section-label">REPORT DETAILS</span><span className={"report-status status-" + selected.status}>{statusLabels[selected.status]}</span></div>
               <h3>{selected.title}</h3><p className="admin-detail-category">{categoryLabels[selected.category] ?? selected.category}</p>
               <div className="admin-detail-field"><span>LOCATION</span><p>{selected.location_text}</p></div>
+              <div className="admin-detail-field"><span>GPS EVIDENCE</span><p>{selected.latitude !== null && selected.longitude !== null ? `${selected.latitude.toFixed(6)}, ${selected.longitude.toFixed(6)} · ±${Math.round(selected.location_accuracy_m ?? 0)} m accuracy` : "No GPS location captured"}</p>{selected.latitude !== null && selected.longitude !== null && <a className="admin-map-link" href={`https://www.google.com/maps?q=${selected.latitude},${selected.longitude}`} target="_blank" rel="noreferrer">Open captured coordinates in map <ExternalLink size={12} /></a>}{selected.location_captured_at && <small>{new Date(selected.location_captured_at).toLocaleString()}</small>}</div>
               <div className="admin-detail-field"><span>DESCRIPTION</span><p>{selected.description}</p></div>
               <div className="admin-detail-field"><span>SUBMITTED</span><p>{new Date(selected.created_at).toLocaleString()}</p></div>
               <div className="admin-detail-field"><span>REPORT ID</span><p className="admin-id">{selected.id}</p></div>
