@@ -176,3 +176,27 @@
 .admin-detail{position:sticky;top:105px;min-height:390px;padding:20px}.admin-detail-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.admin-detail h3{margin:20px 0 6px;color:var(--navy);font-size:21px;letter-spacing:-.04em}.admin-detail-category{margin-bottom:20px;color:var(--blue);font-size:10px;font-weight:700}.admin-detail-field{padding:13px 0;border-top:1px solid var(--line)}.admin-detail-field>span{color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.1em}.admin-detail-field p{margin:6px 0 0;color:var(--navy);font-size:11px;line-height:1.7;overflow-wrap:anywhere}.admin-detail-field .admin-id{font-size:9px;color:var(--muted)}.admin-photo-button{margin-top:7px}.admin-empty{display:flex;min-height:140px;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;color:var(--muted);font-size:10px;text-align:center}.admin-empty strong{color:var(--navy);font-size:12px}.admin-empty p{margin:0;line-height:1.6}.admin-detail-empty{min-height:350px}.admin-spin{animation:admin-spin 1s linear infinite}@keyframes admin-spin{to{transform:rotate(360deg)}}
 @media(max-width:800px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-filters{grid-template-columns:1fr 1fr}.admin-search{grid-column:1/-1}.admin-workspace{grid-template-columns:1fr}.admin-detail{position:static;min-height:0}.admin-detail-empty{min-height:190px}}
 @media(max-width:520px){.admin-nav-actions{gap:8px}.admin-nav-actions .report-back-link{font-size:0;gap:0}.admin-nav-actions .report-back-link svg{width:19px;height:19px}.admin-intro{padding:40px 0 25px}.admin-toolbar{align-items:flex-start}.admin-toolbar h2{font-size:20px}.admin-stats{gap:8px}.admin-stats article{padding:13px}.admin-filters{grid-template-columns:1fr}.admin-search{grid-column:auto}.admin-message{align-items:flex-start;flex-wrap:wrap;padding:19px}}
+
+
+/* Phase 2 report management controls and citizen-visible progress */
+.admin-management-panel{display:grid;gap:12px;margin-top:22px;padding:16px;border:1px solid var(--line);border-radius:11px;background:#F7FAFC}
+.admin-management-panel>.section-label,.admin-history>.section-label{display:flex;align-items:center;gap:7px}
+.admin-management-panel label{display:grid;gap:7px;color:var(--navy);font-size:10px;font-weight:800}
+.admin-management-panel select,.admin-management-panel textarea{width:100%;min-height:40px;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--navy);font:500 10px 'Plus Jakarta Sans',sans-serif}
+.admin-management-panel textarea{resize:vertical;line-height:1.6}
+.admin-management-panel select:focus,.admin-management-panel textarea:focus{outline:3px solid rgba(50,137,207,.17);border-color:var(--bright)}
+.admin-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 13px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-size:10px;font-weight:800;cursor:pointer}
+.admin-save-button:disabled{opacity:.6;cursor:wait}
+.admin-history{display:grid;gap:10px;margin-top:20px}
+.admin-history>p{margin:0;color:var(--muted);font-size:10px}
+.admin-history article{display:grid;gap:5px;padding:11px 0;border-top:1px solid var(--line)}
+.admin-history article strong{color:var(--navy);font-size:10px}
+.admin-history article small{color:var(--muted);font-size:9px}
+.admin-history article p{margin:0;color:var(--muted);font-size:10px;line-height:1.6;overflow-wrap:anywhere}
+.report-admin-update{margin:8px 0 0!important;padding:9px 10px;border-radius:7px;background:#F1F7FA;color:var(--navy)!important;font-size:10px!important;line-height:1.6}
+.report-history-details{margin-top:10px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#FAFCFD}
+.report-history-details summary{color:var(--blue);font-size:10px;font-weight:800;cursor:pointer}
+.report-history-entry{display:grid;gap:4px;padding:10px 0;border-top:1px solid var(--line);margin-top:8px}
+.report-history-entry strong{color:var(--navy);font-size:10px}
+.report-history-entry small{color:var(--muted);font-size:9px}
+.report-history-entry p{margin:0;color:var(--muted);font-size:10px;line-height:1.6;overflow-wrap:anywhere}
