@@ -147,6 +147,15 @@ export function AuthPanel() {
               </button>
             </form>
 
+            {mode === "sign-in" && (
+              <p className="auth-switch-copy">
+                New user?{" "}
+                <button type="button" onClick={() => { setMode("sign-up"); setError(""); setMessage(""); setPassword(""); }}>
+                  Sign up
+                </button>
+              </p>
+            )}
+
             {error && <p className="auth-feedback error" role="alert">{error}</p>}
             {message && <p className="auth-feedback success" role="status">{message}</p>}
             <p className="auth-privacy">Your password is securely managed by Supabase. Public registrations receive citizen access.</p>
