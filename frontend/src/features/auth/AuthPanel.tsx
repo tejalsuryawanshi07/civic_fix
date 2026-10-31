@@ -126,7 +126,7 @@ export function AuthPanel() {
       {session ? (
         <div className="auth-signed-in">
           <span className="auth-user" title="Signed in"><UserRound size={15} /> {displayName}</span>
-          {isAdmin && window.location.pathname.replace(/\\/+$/, "") !== "/admin" && (
+          {isAdmin && window.location.pathname !== "/admin" && (
             <a className="auth-trigger auth-admin-link" href="/admin"><LayoutDashboard size={15} /><span>Admin Dashboard</span></a>
           )}
           <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /><span>Sign out</span></button>
