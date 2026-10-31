@@ -22,3 +22,16 @@ alter table public.reports
   add constraint reports_location_accuracy_valid check (
     location_accuracy_m is null or location_accuracy_m between 0 and 100000
   );
+
+-- Enforce evidence for new submissions at the database layer too.
+-- NOT VALID preserves older reports while still checking every new insert/update.
+alter table public.reports
+  drop constraint if exists reports_new_submissions_require_evidence;
+alter table public.reports
+  add constraint reports_new_submissions_require_evidence check (
+    latitude is not null
+    and longitude is not null
+    and location_accuracy_m is not null
+    and location_captured_at is not null
+    and photo_path is not null
+  ) not valid;
