@@ -21,3 +21,65 @@ body{background:#fff;color:#6C6C6C;font-family:'Plus Jakarta Sans',Arial,sans-se
 .intro,.principles,.closing{padding-top:80px;padding-bottom:80px}.intro-content p,.closing-aside p{color:#6C6C6C;font-size:14px;line-height:1.8}.issues-section,.steps-section,.faq-section{padding:80px 0;background:#F1F5F8;border:0}.section-topline{margin-bottom:42px}.section-topline h2,.section-heading h2,.faq-layout h2{margin-top:17px}.section-topline h2:after,.section-heading h2:after,.faq-layout h2:after{content:'';display:block;width:48px;height:4px;margin-top:8px;background:#1473E6}.section-summary{color:#6C6C6C}.issue-grid{gap:28px;border:0}.issue-card{min-height:230px;padding:25px;border:0;border-radius:10px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .3s,box-shadow .3s}.issue-card:hover,.step:hover,.principle-list article:hover{transform:translateY(-4px)}.issue-card h3{color:#0060A8;font-weight:800}.issue-card p{color:#6C6C6C}.issue-rule{border-color:#1473E6}.steps-section{background:#fff}.steps-grid{gap:20px;border:0}.step,.step+.step{min-height:230px;padding:25px;border:0;border-top:4px solid #1473E6;border-radius:10px;background:#F1F5F8;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .3s}.step h3{color:#0060A8}.step p,.process-note p{color:#6C6C6C}.process-note{max-width:none;padding:18px 20px;border:0;border-radius:10px;background:#F1F5F8}.principle-list{border:0;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.principle-list article{display:flex;flex-direction:column;gap:14px;padding:22px;border:0;border-radius:10px;background:#F1F5F8;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .3s}.principle-list article>span{color:#1473E6}.principle-list h3{color:#0060A8}.principle-list p,.faq-item p{color:#6C6C6C}.faq-section{background:#F1F5F8}.faq-item summary{color:#0060A8}.faq-item summary svg{color:#1473E6}.closing h2{color:#0060A8}.button-dark{background:#0066AE}.footer{background:#031120;color:#9CA3AF;border:0}.footer .brand{color:#fff}.footer .brand-mark{background:#0060A8}.footer a:not(.brand){color:#9CA3AF}.footer a:hover{color:#fff}
 @media(max-width:900px){.nav{padding-left:24px;padding-right:24px}.principle-list{grid-template-columns:1fr}}
 @media(max-width:760px){.wrap{width:min(100% - 40px,600px)}.nav{height:68px;padding:0 20px}.utility-inner{width:calc(100% - 40px)}.hero{min-height:0}.intro,.principles,.closing{padding-top:65px;padding-bottom:65px}.issues-section,.steps-section,.faq-section{padding:65px 0}.steps-grid{grid-template-columns:1fr}.step,.step+.step{min-height:190px;padding:22px}.principles{grid-template-columns:1fr}.principle-list{grid-template-columns:1fr}}
+
+
+/* Detailed street-map backdrop with a restrained glass treatment */
+.hero-art{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:16px;border:1px solid rgba(255,255,255,.8);
+  background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(241,245,248,.78));
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  box-shadow:0 12px 36px rgba(3,35,61,.10),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.map-grid{
+  position:relative;isolation:isolate;overflow:hidden;
+  background-color:#e8f0f3;
+  background-image:
+    linear-gradient(28deg,transparent 47%,rgba(255,255,255,.96) 47.5%,rgba(255,255,255,.96) 50%,transparent 50.5%),
+    linear-gradient(112deg,transparent 39%,rgba(255,255,255,.98) 39.5%,rgba(255,255,255,.98) 43%,transparent 43.5%),
+    linear-gradient(8deg,transparent 68%,rgba(255,255,255,.96) 68.5%,rgba(255,255,255,.96) 72%,transparent 72.5%),
+    linear-gradient(151deg,transparent 22%,rgba(255,255,255,.94) 22.5%,rgba(255,255,255,.94) 25.5%,transparent 26%),
+    linear-gradient(90deg,rgba(176,198,207,.18) 1px,transparent 1px),
+    linear-gradient(rgba(176,198,207,.18) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,100% 100%,100% 100%,28px 28px,28px 28px;
+  box-shadow:inset 0 0 45px rgba(35,88,112,.08);
+}
+.map-grid:before{
+  content:"";position:absolute;inset:-25%;
+  z-index:-1;opacity:.9;
+  background:
+    linear-gradient(90deg,transparent 0 13%,#d5e4df 13% 22%,transparent 22% 100%),
+    linear-gradient(0deg,transparent 0 18%,#d7e4dc 18% 31%,transparent 31% 100%);
+  transform:rotate(-8deg);
+}
+.map-grid:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 42%,rgba(255,255,255,.18));
+}
+.map-road{z-index:1;border:1px solid #d8e1e4;border-radius:3px;box-shadow:0 1px 2px rgba(34,70,85,.08)}
+.road-one{width:145%;height:32px;left:-20%;top:46%;transform:rotate(-17deg)}
+.road-two{width:30px;height:150%;left:58%;top:-22%;transform:rotate(25deg)}
+.road-three{width:110%;height:19px;left:4%;top:17%;transform:rotate(31deg)}
+.map-block{z-index:0;border:1px solid rgba(157,184,177,.55);border-radius:3px;background:rgba(199,216,207,.78)}
+.block-one{width:17%;height:19%;left:7%;top:8%}
+.block-two{width:20%;height:16%;right:7%;top:8%}
+.block-three{width:16%;height:20%;left:10%;bottom:7%}
+.block-four{width:19%;height:19%;right:7%;bottom:7%}
+.map-park{z-index:1;width:90px;height:65px;border:1px solid rgba(114,157,128,.25);border-radius:5px;background:rgba(180,211,190,.88);color:#47785a}
+.map-pin{z-index:3;width:44px;height:44px;border:1px solid rgba(255,255,255,.9);box-shadow:0 0 0 7px rgba(20,115,230,.13),0 5px 16px rgba(0,65,120,.22)}
+.map-callout{
+  z-index:4;left:58%;top:43%;width:165px;padding:13px 14px;
+  border:1px solid rgba(255,255,255,.75);border-left:3px solid #1473E6;
+  background:rgba(255,255,255,.76);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  box-shadow:0 8px 24px rgba(20,60,85,.12),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.map-callout small{font-size:9px}
+.map-coordinate{z-index:2;padding:5px 7px;border-radius:4px;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.map-topline,.map-bottomline{font-size:8px;letter-spacing:.12em}
+.map-bottomline{padding-top:3px}
+.status-overlay{
+  z-index:5;border:1px solid rgba(255,255,255,.85);border-left:4px solid #1473E6;
+  background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  box-shadow:0 10px 28px rgba(3,35,61,.13),inset 0 1px 0 rgba(255,255,255,.9);
+}
+@media(max-width:420px){.map-callout{left:54%;width:135px}.map-park{width:66px;height:50px}.status-overlay{max-width:215px}}
