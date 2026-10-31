@@ -1,148 +1,109 @@
-# CivicFix — Dependencies and Installation Plan
+# CivicFix — Deployment and Dependencies
 
-## 1. Runtime prerequisites
+## 1. Deployment targets
 
-Recommended local development baseline:
-- Node.js 20 LTS or newer supported LTS.
-- npm (bundled with Node.js).
-- Python 3.11 or 3.12; verify compatibility with selected PyTorch/Transformers releases.
-- PostgreSQL 16+ with PostGIS and pgvector extensions available.
-- Redis 7+.
-- Docker Desktop or Docker Engine with Compose.
-- Git.
+The goal is a public URL that can be opened by anyone you choose to share it with.
 
-Model inference requirements are separate from basic application development. Qwen vision/text models can require substantial RAM/VRAM. Confirm model cards, licenses, quantization options, hardware, and measured latency before selecting local production serving.
+| Component | Recommended host | What it provides |
+|---|---|---|
+| Frontend | Vercel | Static React website and HTTPS |
+| Backend | Render | Hosted Node.js/Express API |
+| Database | Supabase | Managed PostgreSQL |
+| Image storage | Supabase Storage | Hosted complaint photographs |
+| AI | Hosted AI API | Model inference without managing GPU servers |
 
-## 2. Frontend packages
+These providers are recommendations; account plans, free-tier limits, sleep behavior, and pricing can change. Check current plan limits before deployment.
 
-Core runtime:
+## 2. Frontend dependencies
+
+Start with only what the UI needs:
 - react, react-dom
 - react-router-dom
-- tailwindcss, @tailwindcss/vite (or the compatible Tailwind integration selected during setup)
-- leaflet, react-leaflet
-- lucide-react (icons)
-- zod (shared/client validation)
-- react-hook-form, @hookform/resolvers
-- recharts (dashboard charts, if needed)
-
-Development:
 - vite, typescript
-- @types/react, @types/react-dom, @types/leaflet
-- eslint, typescript-eslint, eslint-plugin-react-hooks
-- prettier
-- vitest, @testing-library/react, @testing-library/user-event, jsdom
-- playwright (end-to-end tests)
+- tailwindcss (plus the Vite integration compatible with the selected version)
+- lucide-react
+- leaflet, react-leaflet (only for map screens)
+- react-hook-form, zod, @hookform/resolvers
+- recharts (only if charts are used)
 
-Do not install every package before the frontend is scaffolded. Confirm compatibility with the chosen Vite and Tailwind versions at setup time.
+Development/testing:
+- eslint, prettier
+- vitest, @testing-library/react, @testing-library/user-event
+- playwright (optional end-to-end tests)
 
-## 3. Backend packages
+## 3. Backend dependencies
 
-Runtime:
 - express
-- pg (node-postgres)
-- zod
-- jsonwebtoken
-- bcrypt
-- helmet
+- @supabase/supabase-js (database/storage client)
+- zod (request and response validation)
+- bcrypt (password hashing if backend-managed authentication is used)
+- jsonwebtoken (only if backend-managed JWT auth is used)
 - cors
+- helmet
 - express-rate-limit
-- multer (only if API-proxied uploads are selected; signed direct uploads may avoid this)
-- bullmq
-- ioredis
+- dotenv
 - pino, pino-http
-- dotenv (or a validated environment loader)
-- cloudinary (if Cloudinary is selected)
+- multer (only if backend handles multipart image uploads)
+- provider SDK or fetch/http client for the chosen AI API
 
 Development/testing:
 - typescript, tsx
-- @types/node, @types/express, @types/jsonwebtoken, @types/bcrypt, @types/cors, @types/multer
+- @types/node, @types/express, @types/cors
 - eslint, prettier
-- vitest
-- supertest and @types/supertest
+- vitest, supertest
 
-Database migrations:
-- node-pg-migrate (recommended for SQL-first migrations and PostGIS/pgvector control).
+Authentication decision: choose one clear approach during implementation. Supabase Auth is simplest to operate with Supabase; alternatively, implement backend-managed JWT auth. Do not implement both without a real requirement.
 
-Avoid adding a heavy ORM initially; SQL-first migrations and node-postgres give explicit control over spatial and vector SQL.
+## 4. Hosted AI
 
-## 4. AI service packages
+Do not install PyTorch, Transformers, LangGraph, or download large Qwen models for the first public demo. Use a hosted AI API that supports the required text/image inputs and has an accessible quota and acceptable pricing.
 
-Core:
-- fastapi
-- uvicorn[standard]
-- pydantic, pydantic-settings
-- langgraph
-- transformers
-- torch (install the build appropriate for CPU/CUDA and target hardware)
-- accelerate
-- sentence-transformers
-- pillow
-- httpx
-- python-multipart (only if FastAPI accepts multipart uploads)
-- tenacity (bounded transient retries)
-- structlog or standard structured logging
+Keep the provider behind one backend adapter so it can be replaced. Store its API key only in Render environment variables. Confirm provider model capabilities, usage limits, privacy terms, and pricing before choosing.
 
-Optional:
-- ultralytics — only if a specific suitable pothole/road-damage model is selected and evaluated.
-- geopy — optional convenience wrapper; provider integration and usage policy still need explicit selection.
-- pytest, pytest-asyncio, ruff, mypy — development quality tools.
+If no AI key is configured, the application should still work: save complaints and show “AI analysis unavailable — manual review required.” Do not fabricate AI output.
 
-Model identifiers from the specification:
-- Qwen/Qwen3-VL-4B-Instruct
-- Qwen/Qwen3-4B
-- BAAI/bge-m3
+## 5. Supabase setup
 
-Before installation/integration, inspect each model's current Hugging Face model card, license, supported Transformers version, inference requirements, and actual task performance. Model names in the specification are proposed choices, not proof of accuracy or production readiness.
-
-## 5. Database and infrastructure
-
-PostgreSQL extensions:
-- postgis
-- vector (pgvector)
-
-Infrastructure:
-- Redis 7+
-- Docker and Docker Compose
-- Cloudinary account/credentials if selected
-- Optional geocoding provider credentials, only after provider selection.
-
-Use a local PostgreSQL image/build that includes both PostGIS and pgvector, or install compatible extensions into the chosen PostgreSQL instance. Verify extension versions in the development environment.
+- Create one Supabase project.
+- Create the relational tables defined in DATABASE_DESIGN.md.
+- Create a private Storage bucket for complaint images.
+- Configure row-level security if browser clients access Supabase directly.
+- Prefer backend-mediated database/storage access for the initial simpler trust boundary.
+- Store Supabase URL and service-role key only in backend secrets. Never expose the service-role key in Vite variables.
 
 ## 6. Environment variables
 
-Create a root `.env.example` with placeholders only; never commit real credentials.
+Example names (values must be configured in hosting dashboards, not committed):
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` (backend only)
+- `AI_API_KEY`
+- `AI_API_BASE_URL` (if required by provider)
+- `AI_MODEL`
+- `FRONTEND_ORIGIN`
+- `PORT`
+- `JWT_SECRET` (only if backend-managed JWT is selected)
 
-Suggested configuration groups:
-- App: NODE_ENV, FRONTEND_URL, API_PORT, API_BASE_URL.
-- Database: DATABASE_URL.
-- Auth: JWT_ACCESS_SECRET, JWT_ACCESS_TTL, refresh-token settings if implemented.
-- Redis: REDIS_URL.
-- AI service: AI_SERVICE_URL, AI_SERVICE_TOKEN, AI_REQUEST_TIMEOUT_MS.
-- Object storage: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.
-- Geocoding: GEOCODING_PROVIDER, GEOCODING_API_KEY, GEOCODING_BASE_URL.
-- AI models: VISION_MODEL_ID, TEXT_MODEL_ID, EMBEDDING_MODEL_ID, MODEL_CACHE_DIR, DEVICE.
-- Logging: LOG_LEVEL.
+Frontend may need a public `VITE_API_BASE_URL` pointing to the Render API. Never put private keys in any `VITE_*` variable.
 
-Use separate environment files per service locally if needed, but keep secrets out of Git. Validate required variables at process startup.
+## 7. Deployment steps
 
-## 7. Installation order
+1. Create Supabase project and configure schema and private image bucket.
+2. Push the repository to GitHub.
+3. Create a Render Web Service from the backend directory; configure build/start commands and environment variables.
+4. Deploy the frontend on Vercel from the frontend directory; set `VITE_API_BASE_URL` to the Render API URL.
+5. Set backend CORS allowlist to the Vercel domain.
+6. Add the AI provider key to Render only.
+7. Run a public smoke test: register/login, submit complaint, upload image, view complaint, review as admin, assign, and update status.
+8. Share the Vercel URL. Provide a safe demo account or demo data for reviewers; never publish an admin password in the repository.
 
-1. Install runtime prerequisites and Docker.
-2. Scaffold frontend with Vite React TypeScript; add Tailwind and design tokens.
-3. Scaffold Express TypeScript backend; add config, validation, logging, security middleware.
-4. Start PostgreSQL + PostGIS + pgvector and Redis using Compose.
-5. Add SQL migrations and verify extensions.
-6. Add backend database connection and authentication dependencies.
-7. Add BullMQ only when the first asynchronous processing job is introduced.
-8. Scaffold FastAPI AI service and install model dependencies in a separate Python virtual environment.
-9. Download/load large models only after hardware and license evaluation.
-10. Add Cloudinary and geocoding credentials only after provider selection.
+## 8. Not needed for the first deployment
 
-## 8. Dependency management rules
+- Docker or Docker Compose.
+- Redis, BullMQ, or Kafka.
+- Separate Python/FastAPI service.
+- Self-hosted model weights, CUDA, or GPU machine.
+- Kubernetes.
+- Separate vector database.
+- Local multi-service setup.
 
-- Pin tested dependency versions in lockfiles (package-lock.json and Python constraints/lock file).
-- Separate production and development dependencies.
-- Do not install YOLO unless evaluation demonstrates a concrete benefit.
-- Do not run model downloads during normal API startup if it harms cold-start reliability.
-- Use CPU-only or CUDA-specific PyTorch installation based on target machine.
-- Revisit package versions during implementation rather than assuming this document is a forever-current version matrix.
+Add these only if the deployed demo later demonstrates a concrete need.
