@@ -52,8 +52,9 @@ function App() {
         <div className="hero-grid">
           <div className="hero-main">
             <p className="hero-kicker">CIVICFIX / YOUR LOCAL ISSUE, MADE VISIBLE</p>
-            <h1>SEE A PROBLEM?<br /><span>MAKE IT VISIBLE.</span></h1>
-            <p className="hero-subline">A simpler starting point for better neighbourhoods.</p>
+            <h1>See a problem?<br /><span>Make it visible.</span></h1>
+            <p className="hero-subline">A clearer way to bring neighbourhood concerns forward.</p>
+            <div className="hero-sequence" aria-label="Notice, describe, follow"><span>01 <b>NOTICE</b></span><i /><span>02 <b>DESCRIBE</b></span><i /><span>03 <b>FOLLOW</b></span></div>
           </div>
           <div className="hero-aside">
             <p className="hero-copy">A pothole on your route. A streetlight that has gone dark. Waste left uncollected. CivicFix is being built to help residents bring everyday civic problems into view—and follow what happens next.</p>
