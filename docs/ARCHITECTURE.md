@@ -1,274 +1,158 @@
-# CivicFix — System Architecture
+# CivicFix — Simple Deployment-First Architecture
 
-## 1. Purpose and scope
+## 1. Goal
 
-CivicFix is an AI-assisted civic issue management platform. Citizens report local infrastructure and sanitation issues; AI services analyze reports and recommend classification, severity, possible duplicates, and department routing; authorized humans review recommendations and manage resolution.
+CivicFix should be easy to deploy publicly so that a reviewer, mentor, judge, or friend can open a link and try the application. Avoid infrastructure that is difficult to configure or maintain for a student project demo.
 
-**Trust boundary:** CivicFix initially manages reports internally. It must never claim that a complaint has been filed with, acknowledged by, or assigned to a government authority unless a real, verified integration is introduced later.
+There is no requirement to run the full system locally. Development can happen in the normal editor workflow, while the deployed services run in the cloud.
 
-This document defines the logical architecture. It does not implement application code.
+## 2. Final simple stack
 
-## 2. Architecture decisions
-
-| Concern | Decision | Reason |
+| Part | Choice | Hosting |
 |---|---|---|
-| Web application | React + TypeScript + Vite | Component-based, typed SPA and fast development |
-| UI styling | Tailwind CSS with project design tokens | Implements the supplied Poster Modernist system consistently |
-| Client routing | React Router | Role-aware citizen, administrator, and staff areas |
-| Maps | Leaflet | Open-source map rendering and marker workflows |
-| API backend | Node.js + Express REST API | Central business rules, authentication, authorization, and integrations |
-| AI service | Python + FastAPI | Python model ecosystem and isolated inference dependencies |
-| Agent orchestration | LangGraph in the AI service | Shared workflow state, conditional edges, retries, and human-review boundary |
-| Primary data | PostgreSQL | Normalized relational records and transactions |
-| Geospatial | PostGIS extension | Indexed point/radius and locality queries |
-| Semantic search | pgvector extension | Stores and queries complaint embeddings |
-| Background jobs | Redis + BullMQ in Node backend | Durable asynchronous work and retries |
-| Image storage | Cloudinary initially, behind a storage adapter | Keeps large binary media out of relational tables |
-| Deployment | Docker Compose for local development | Reproducible multi-service environment |
+| Frontend | React + TypeScript + Vite | Vercel |
+| Backend | Node.js + Express | Render |
+| Database | PostgreSQL | Supabase |
+| Image storage | Supabase Storage | Supabase |
+| AI | Hosted AI API | Provider-managed |
+| Maps | Leaflet + selected map tile provider | Used by frontend |
 
-Use one modular backend and one AI service initially. Do not split every agent into its own deployable service. Do not add Kubernetes, Kafka, or a separate API gateway at this stage.
+Use one backend deployment. Do not create a separate Python/FastAPI service for the first public demo. Do not add Redis, BullMQ, Docker, Kubernetes, or a separate vector database.
 
-## 3. Logical architecture
+## 3. Architecture diagram
 
 ```mermaid
-flowchart TB
-  C[Citizen browser] --> FE[React + TypeScript frontend]
-  A[Administrator browser] --> FE
-  D[Department staff browser] --> FE
-  FE -->|HTTPS REST + JWT| API[Node.js / Express API]
-  API --> DB[(PostgreSQL)]
-  DB --- GIS[PostGIS]
-  DB --- VEC[pgvector]
-  API --> OBJ[Cloudinary object storage]
-  API --> Q[Redis + BullMQ]
-  Q --> W[Node job worker]
-  W -->|Internal HTTP| AI[Python FastAPI AI service]
-  AI --> MODELS[Vision, text and embedding models]
-  AI -->|structured result| W
-  W --> DB
-  API -->|authorized status changes| DB
-  API --> NOTIFY[Notification provider adapter]
+flowchart TD
+  U[Public user / reviewer] --> FE[React website on Vercel]
+  FE -->|HTTPS REST| BE[Express API on Render]
+  BE --> DB[(Supabase PostgreSQL)]
+  BE --> FS[Supabase Storage]
+  BE --> AI[Hosted AI API]
+  AI --> BE
+  BE --> FE
 ```
 
-The frontend never connects directly to PostgreSQL, Redis, Cloudinary administration APIs, or model runtimes. All privileged operations pass through the backend.
+The browser only talks to the Express API for privileged operations. The backend talks to Supabase and the AI provider using server-side credentials. Never put database service-role keys or AI API keys in frontend environment variables.
 
-## 4. Service boundaries
+## 4. Responsibilities
 
-### 4.1 Frontend — `frontend/`
+### Frontend — `frontend/`
+- Landing page using the Poster Modernist design system.
+- Citizen registration/login and complaint submission.
+- Complaint history, detail page, and status timeline.
+- Admin dashboard, review queue, assignment and analytics views.
+- Department staff view for assigned complaints and progress updates.
+- Map and responsive layouts.
+- Calls the backend using a single API client.
 
-Responsibilities:
-- Public landing and product navigation.
-- Citizen registration, login, complaint submission, complaint history, and status timeline.
-- Administrator complaint queue, AI recommendation review, assignment controls, analytics, and map.
-- Department staff queue, progress notes, evidence uploads, and resolution actions.
-- Client-side form validation and accessible loading, empty, and error states.
-- Rendering the Poster Modernist design system.
-- Calling backend REST endpoints through a centralized typed API client.
+### Backend — `backend/`
+- Authentication and role-based permissions.
+- Complaint create/read/update workflows.
+- Validation and lifecycle rules.
+- Upload authorization and Supabase Storage integration.
+- Database access through Supabase/PostgreSQL.
+- AI request construction, API calls, response validation, and persistence.
+- Admin review, human-approved assignment, status history, and notifications.
+- Central error handling and request logging.
 
-The frontend may display AI findings, but it cannot approve an assignment or change a role by itself. Backend authorization is authoritative.
+### AI module — inside `backend/src/modules/ai/`
+Keep the six specification agents as small logical modules in the same backend:
+1. Vision — inspect complaint images when the chosen hosted AI provider supports image input.
+2. Location — validate coordinates and use a configured geocoding API if needed.
+3. Classification and severity — suggest issue type and urgency.
+4. Duplicate detection — compare against existing complaints using text/category/location heuristics for the first demo.
+5. Department routing — recommend only from the verified departments stored in the database.
+6. Follow-up — identify overdue complaints and suggest a reminder.
 
-### 4.2 Backend — `backend/`
+These are not six separately deployed agents or servers. They are simple backend modules coordinated by one AI workflow. Start with the provider's single API call where possible. If a capability is not supported by the chosen provider, show it as unavailable rather than pretending it ran.
 
-Responsibilities:
-- Authentication, JWT issuance/verification, password hashing, and role-based access control.
-- REST API request validation and response formatting.
-- Complaint creation, ownership checks, and complaint ID generation.
-- Signed/restricted image upload orchestration and media metadata persistence.
-- Database transactions and domain rules.
-- Enqueueing AI-analysis jobs and returning an accepted/pending response.
-- Receiving worker results and persisting analysis outputs.
-- Human review, assignment, lifecycle transitions, and audit history.
-- Notification creation and delivery-provider integration.
-- Rate limiting, security headers, structured logging, and health checks.
+### Database and storage — Supabase
+- PostgreSQL stores users, complaints, departments, assignments, status history, AI analysis, and notifications.
+- Supabase Storage stores uploaded images.
+- Use standard relational queries first. Add PostGIS or pgvector only if the selected Supabase project plan and implementation genuinely need them; neither is required for the first demo.
 
-The backend is the system of record for authorization and complaint lifecycle state.
-
-### 4.3 AI service — `ai-service/`
-
-One FastAPI application hosts the LangGraph workflow and specialized agents:
-
-1. Vision Agent — image relevance, visible issue description, structured visual findings.
-2. Location Agent — coordinate validation and reverse geocoding via a configurable provider.
-3. Classification and Severity Agent — category, severity (Low/Medium/High/Critical), and explanation.
-4. Duplicate Detection Agent — semantic, category, and geographic candidate scoring.
-5. Department Routing Agent — recommendation from the verified department directory supplied by the backend; never invents a department.
-6. Follow-up and Escalation Agent — identifies overdue cases and proposes reminders/escalations; it does not change status without authorization.
-
-Responsibilities:
-- Validate request and workflow state with Pydantic schemas.
-- Execute deterministic checks before model calls where practical.
-- Orchestrate agents with bounded retries, timeouts, and explicit failure states.
-- Return structured JSON, confidence/evidence fields where available, and per-agent execution metadata.
-- Never independently reject a complaint, approve an assignment, or perform irreversible actions.
-- Keep model loading and inference isolated from the Node API process.
-
-The AI service should not have unrestricted database write access. For duplicate candidates it receives a bounded candidate set from a trusted backend endpoint or a narrowly scoped data-access adapter. Final persistence and authorization remain backend responsibilities.
-
-### 4.4 Database — `database/`
-
-PostgreSQL is the source of truth. PostGIS adds geographic types/indexes; pgvector stores embedding vectors. Schema migrations are version-controlled. Use foreign keys, check constraints, transactions, and indexes rather than relying only on application validation.
-
-### 4.5 Infrastructure adapters
-
-- Redis/BullMQ: asynchronous job transport, retry/backoff, and job state.
-- Cloudinary: image/object storage; database stores provider key, URL, MIME type, size, checksum, and ownership metadata.
-- Geocoding: provider adapter with rate limits and caching; provider is a deployment decision and must be configured, not hardcoded.
-- Notifications: internal notification records first; email/SMS/push providers can be added through adapters. Do not assume a provider is configured.
-
-## 5. Repository structure
+## 5. Suggested repository structure
 
 ```text
 civic_fix/
 ├── frontend/
 │   ├── public/
 │   └── src/
-│       ├── app/                 # app bootstrap, router, providers
-│       ├── assets/              # local fonts, logos, illustrations
 │       ├── components/
-│       │   ├── ui/              # Poster Button, labels, inputs, tables
-│       │   ├── layout/           # nav, grid shell, sidebar labels
-│       │   ├── maps/             # map, markers, location picker
-│       │   └── complaints/       # complaint-specific reusable UI
+│       ├── pages/
 │       ├── features/
 │       │   ├── auth/
-│       │   ├── citizen/
 │       │   ├── complaints/
 │       │   ├── admin/
-│       │   ├── departments/
-│       │   └── notifications/
+│       │   └── department/
+│       ├── services/       # backend API client
+│       ├── styles/         # Poster Modernist tokens
 │       ├── hooks/
-│       ├── lib/                  # API client, token/session helpers
-│       ├── routes/
-│       ├── styles/               # tokens, Tailwind entry, global styles
-│       ├── types/
-│       └── utils/
-│
+│       └── types/
 ├── backend/
 │   └── src/
-│       ├── app.ts                # Express app composition
-│       ├── server.ts             # process startup
-│       ├── config/               # env parsing and configuration
+│       ├── config/
+│       ├── routes/
+│       ├── controllers/
+│       ├── middleware/
 │       ├── modules/
 │       │   ├── auth/
-│       │   ├── users/
 │       │   ├── complaints/
-│       │   ├── locations/
 │       │   ├── departments/
 │       │   ├── assignments/
-│       │   ├── status-history/
-│       │   ├── duplicate-reports/
-│       │   ├── ai-analysis/
-│       │   ├── notifications/
-│       │   └── analytics/
-│       ├── middleware/           # auth, RBAC, validation, errors, rate limits
-│       ├── database/             # pool, transaction helpers
-│       ├── jobs/                  # BullMQ queues, workers, processors
-│       ├── integrations/
-│       │   ├── ai-service/
-│       │   ├── object-storage/
-│       │   ├── geocoding/
+│       │   ├── ai/         # six logical AI modules
 │       │   └── notifications/
-│       ├── observability/        # logger, metrics, tracing hooks
-│       └── shared/                # errors, constants, response helpers
-│
-├── ai-service/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── api/                  # FastAPI routers and dependencies
-│   │   ├── core/                 # settings, logging, security
-│   │   ├── schemas/              # Pydantic request/result/workflow schemas
-│   │   ├── graph/                # LangGraph state, nodes, edges, compile
-│   │   ├── agents/
-│   │   │   ├── vision/
-│   │   │   ├── location/
-│   │   │   ├── classification/
-│   │   │   ├── duplicate_detection/
-│   │   │   ├── department_routing/
-│   │   │   └── follow_up/
-│   │   ├── models/               # model loaders and inference adapters
-│   │   ├── services/             # geocoding, embeddings, candidate scoring
-│   │   ├── clients/              # backend/internal service clients
-│   │   └── observability/        # agent logs and timing
-│   ├── tests/
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── database/
-│   ├── migrations/
-│   ├── schema/
-│   ├── seeds/                    # verified development departments only
-│   └── README.md
-│
-├── infrastructure/
-│   ├── docker/
-│   └── compose.yaml
+│       ├── services/       # Supabase and AI provider clients
+│       └── utils/
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── DATA_FLOW.md
-│   ├── DATABASE_DESIGN.md
-│   ├── API_DESIGN.md
-│   ├── DEPENDENCIES.md
-│   └── UI_DESIGN_SYSTEM.md
 ├── .env.example
-├── .gitignore
 └── README.md
 ```
 
-Folders are architectural boundaries, not a requirement to create empty files for every item immediately. Add modules incrementally as phases are implemented.
+Do not create empty modules before they are needed. Add files as features are implemented.
 
-## 6. Communication contracts
+## 6. Main request flow
 
-| From | To | Mechanism | Contract |
-|---|---|---|---|
-| Frontend | Backend | HTTPS REST/JSON | Versioned API, JWT bearer token |
-| Frontend | Object storage | Restricted signed upload, if enabled | Short-lived upload authorization |
-| Backend | PostgreSQL | Private network, SQL | Transactions and parameterized queries |
-| Backend | Redis | BullMQ | Job ID, retry policy, status |
-| Worker | AI service | Private HTTP + service credential | Versioned Pydantic-compatible JSON |
-| Backend | Notification adapter | Provider SDK/API | Delivery request and provider result |
-| AI service | Backend | Internal REST callback/result response | Structured findings; no final decision |
+1. A citizen opens the Vercel website and submits a complaint.
+2. The frontend sends the complaint and image metadata to the Render API.
+3. The backend validates the user and stores the complaint in Supabase.
+4. The backend uploads/associates images in Supabase Storage.
+5. The backend calls the configured hosted AI API and validates its response.
+6. AI suggestions are saved as recommendations.
+7. An administrator reviews the recommendations and makes the actual assignment.
+8. The citizen sees the updated status and timeline.
 
-Use `/api/v1` for public backend routes and `/internal/v1` for private service endpoints. Internal endpoints must not be exposed publicly without authentication and network restrictions.
+For the first demo, AI processing can happen during the request with a sensible timeout. If it times out or the provider is not configured, the complaint must still be saved and marked “AI analysis pending/unavailable” so manual review remains possible.
 
-## 7. Complaint lifecycle and human control
+## 7. Deployment plan
 
-`Reported → AI Analysis → Under Review → Assigned → In Progress → Resolved`
+1. Create a Supabase project and configure database tables and Storage bucket.
+2. Deploy the Express backend to Render and add environment variables.
+3. Deploy the React frontend to Vercel and set the public backend URL.
+4. Add the hosted AI provider key only to Render's secret environment variables.
+5. Configure CORS to allow the deployed Vercel domain.
+6. Test registration, complaint submission, image upload, admin review, and status updates using the public URL.
 
-Additional terminal/branch states:
-- Reopened — authorized user reopens a resolved complaint.
-- Rejected — authorized reviewer rejects with a mandatory reason.
+## 8. Security and demo reliability
 
-The AI workflow can produce analysis and recommendations. It may move a complaint into an analysis-pending/analysis-complete operational state through the backend, but only an authorized human can approve/reject recommendations and assign a department. Every lifecycle transition creates a status-history record with actor and timestamp.
+- Keep all secrets in hosting environment settings, never in Git.
+- Use a restricted Supabase key in the browser only if the browser directly uses Supabase Auth/Storage with correct row-level security; otherwise route access through the backend.
+- Enforce roles and ownership in the backend.
+- Never allow public registration to create an admin account.
+- Limit image size and accepted formats.
+- Validate all AI responses; treat them as suggestions, not trusted commands.
+- Do not automatically reject complaints or assign departments based only on AI.
+- Add a demo seed/admin setup path that does not expose default credentials publicly.
+- Configure a health endpoint and a friendly frontend error state if the backend sleeps or is unavailable.
 
-## 8. Reliability and security
+## 9. Deferred until needed
 
-- Validate all external inputs with schemas.
-- Hash passwords with bcrypt; keep signing secrets outside source control.
-- Use short-lived access tokens and plan refresh-token rotation before production.
-- Apply RBAC and resource ownership checks on every protected route.
-- Validate image MIME type, extension, size, and actual file signature.
-- Keep storage credentials and AI service credentials server-side.
-- Rate-limit authentication and complaint creation endpoints.
-- Use BullMQ retries with exponential backoff, bounded attempts, and idempotent job handling.
-- Persist AI execution logs, model identifiers, durations, and failure reasons.
-- Do not log passwords, JWTs, raw private media URLs, or unnecessary precise location data.
-- Use database migrations and backups; index geography and vector columns.
-- AI output is untrusted input: schema-validate it and require human approval for consequential decisions.
+The following are intentionally excluded from the first deployable demo:
+- Separate FastAPI service and LangGraph server.
+- Redis and BullMQ.
+- Docker and Docker Compose.
+- Self-hosted Qwen model inference.
+- Dedicated vector database and advanced geospatial extensions.
+- Kubernetes, message brokers, and microservice infrastructure.
 
-## 9. Phased delivery
-
-- Phase 1 foundation: repo layout, configuration, database schema, authentication, roles, complaint submission and tracking. Keep AI service contract documented; AI may remain unavailable until Phase 2.
-- Phase 2 AI integration: FastAPI service, image understanding, classification/severity, location validation.
-- Phase 3 agents: LangGraph, duplicate detection, department recommendation, human review, agent observability.
-- Phase 4 workflows: dashboards, maps, notifications, escalation.
-- Phase 5 hardening: tests, model evaluation, Docker deployment, monitoring and documentation.
-
-## 10. Open decisions before production
-
-- Hosting provider and production topology.
-- Geocoding provider, quotas, and privacy terms.
-- Notification channels and provider.
-- Cloudinary plan or compatible object-storage alternative.
-- Model serving hardware/provider and verified model licenses.
-- Data retention, deletion, and location-precision policy.
-- Whether department staff accounts are provisioned by administrators or invited.
+They can be introduced later if real scale or evaluation results justify them.
