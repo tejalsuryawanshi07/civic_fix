@@ -106,7 +106,15 @@ export function AdminPage() {
       p_admin_remarks: editRemarks,
     });
     if (saveError) setError(saveError.message);
-    else await loadReports();
+    else {
+      await loadReports();
+      const { data: historyData, error: historyError } = await supabase
+        .from("report_status_history")
+        .select("id,old_status,new_status,assigned_department,admin_remarks,created_at")
+        .eq("report_id", selected.id).order("created_at", { ascending: false });
+      if (historyError) setError(historyError.message);
+      else setHistory((historyData ?? []) as HistoryEntry[]);
+    }
     setSaving(false);
   };
 
