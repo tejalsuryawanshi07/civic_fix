@@ -68,3 +68,32 @@
   .auth-trigger{padding:7px 7px;font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.auth-dialog{animation:none}}
+
+
+/* Auth modal viewport and portal positioning fix */
+.auth-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow-x:hidden;
+  overflow-y:auto;
+  padding:clamp(12px,3vh,28px) 16px;
+  box-sizing:border-box;
+}
+.auth-dialog{
+  flex:0 1 440px;
+  width:min(100%,440px);
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  margin:auto;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+@media(max-height:620px){
+  .auth-backdrop{align-items:flex-start;padding-top:12px;padding-bottom:12px}
+  .auth-dialog{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}
+}
