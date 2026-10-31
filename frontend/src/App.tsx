@@ -1,117 +1,115 @@
 import { useState } from "react";
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, ChevronDown, Construction,
-  Droplets, Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
+  ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
+  Lightbulb, MapPin, Menu, ShieldCheck, Trash2, Trees, X,
 } from "lucide-react";
 
 const issueTypes = [
   { icon: Construction, title: "Roads & footpaths", detail: "Potholes, damaged pavements, broken kerbs and unsafe crossings." },
-  { icon: Trash2, title: "Waste & cleanliness", detail: "Missed waste collection, overflowing bins and illegal dumping." },
-  { icon: Lightbulb, title: "Street lighting", detail: "Streetlights that are broken, missing or not working after dark." },
-  { icon: Droplets, title: "Water & drainage", detail: "Leaking pipes, blocked drains, waterlogging and flooding." },
-  { icon: Trees, title: "Parks & public spaces", detail: "Damaged park equipment, neglected green spaces and public-area repairs." },
-  { icon: MapPin, title: "Other local concerns", detail: "A neighbourhood issue that affects shared spaces or public services." },
+  { icon: Trash2, title: "Waste & cleanliness", detail: "Missed collections, overflowing bins and illegal dumping." },
+  { icon: Lightbulb, title: "Street lighting", detail: "Broken, missing or unreliable streetlights." },
+  { icon: Droplets, title: "Water & drainage", detail: "Leaking pipes, blocked drains and waterlogging." },
+  { icon: Trees, title: "Parks & public spaces", detail: "Damaged equipment and neglected shared green spaces." },
+  { icon: MapPin, title: "Other local concerns", detail: "Other issues affecting neighbourhood spaces and public services." },
 ];
 
 const steps = [
-  { number: "01", title: "Spot something", detail: "Notice an issue in a street, park or shared public space. If it is safe, take a photo and note where it is." },
-  { number: "02", title: "Make it clear", detail: "A useful report explains what happened and where. A precise location helps the right people understand the problem." },
-  { number: "03", title: "Follow what happens", detail: "CivicFix is designed to make progress easier to understand, so residents can see updates instead of wondering what happened." },
+  { n: "01", title: "Pin the problem", text: "Identify where the issue is and describe what you noticed. A clear location makes a concern easier to understand." },
+  { n: "02", title: "Add useful context", text: "Share a concise description and, where safe and appropriate, a photo that helps explain the issue." },
+  { n: "03", title: "Follow the next step", text: "CivicFix is designed to make updates easier to follow as the platform's reporting and tracking features are developed." },
 ];
 
 const faqs = [
-  { question: "What kind of issues belong on CivicFix?", answer: "Issues affecting shared neighbourhood spaces and civic services: damaged roads, overflowing bins, broken streetlights, drainage problems, water leaks and public-space maintenance." },
-  { question: "What makes a useful report?", answer: "A clear description, a specific location and—when it is safe and appropriate—a recent photo. Avoid sharing personal information or photographing people unnecessarily." },
-  { question: "Does CivicFix itself repair the issue?", answer: "No. CivicFix is intended to help residents communicate local problems and follow their progress. Repairs and official decisions remain the responsibility of the relevant civic authority." },
-  { question: "Can I submit and track a live report right now?", answer: "This version is the CivicFix website preview. Online report submission and live status tracking are not connected yet; those workflows will be added as the platform is developed." },
+  { q: "What kind of issues can CivicFix help highlight?", a: "CivicFix is designed around shared neighbourhood concerns such as damaged roads, waste collection, street lighting, drainage, water leaks and public-space maintenance." },
+  { q: "What should I include in a report?", a: "Include a clear description and a specific location. If it is safe and appropriate, a recent photo can help explain the issue. Avoid sharing personal or identifying information." },
+  { q: "Can I submit and track a report right now?", a: "Not yet. This is the CivicFix website preview. Online report submission, authentication and live status tracking are not connected in this version." },
+  { q: "Does CivicFix carry out repairs?", a: "No. CivicFix is intended to help residents raise awareness of local concerns. Repairs and official decisions remain the responsibility of the relevant civic authority." },
 ];
 
-function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const closeMenu = () => setMenuOpen(false);
-
+function NeighbourhoodMap() {
   return (
-    <main>
-      <div className="utility-strip"><div className="utility-inner">PLATFORM PREVIEW · CIVICFIX</div></div>
-      <nav className="nav wrap" aria-label="Main navigation">
-        <a className="brand" href="#home" aria-label="CivicFix home" onClick={closeMenu}><span className="brand-mark">C</span> CIVICFIX</a>
-        <div className="nav-links">
-          <a href="#issues">ISSUES</a><a href="#how-it-works">HOW IT WORKS</a><a href="#about">ABOUT</a><a href="#faq">FAQ</a>
-        </div>
-        <a className="nav-cta" href="#how-it-works">EXPLORE THE PROCESS <ArrowRight size={15} /></a>
-        <button className="menu-button" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
-      </nav>
-      {menuOpen && <div className="mobile-menu">
-        <a href="#issues" onClick={closeMenu}>ISSUES <ArrowUpRight size={16} /></a>
-        <a href="#how-it-works" onClick={closeMenu}>HOW IT WORKS <ArrowUpRight size={16} /></a>
-        <a href="#about" onClick={closeMenu}>ABOUT <ArrowUpRight size={16} /></a>
-        <a href="#faq" onClick={closeMenu}>FAQ <ArrowUpRight size={16} /></a>
-      </div>}
-
-      <section className="hero wrap" id="home">
-        <div className="eyebrow"><span className="eyebrow-dot" /> A COMMUNITY-LED WAY TO RAISE LOCAL ISSUES</div>
-        <div className="hero-grid">
-          <div className="hero-main">
-            <p className="hero-kicker">CIVICFIX <span>—</span> THE NEIGHBOURHOOD, NOTICED</p>
-            <h1>Your neighbourhood,<br /><em>in focus.</em></h1>
-            <p className="hero-subline">The little things that make a place home deserve to be seen.</p>
-            <div className="hero-mantra"><span>YOUR CITY.</span><span>YOUR VOICE.</span><strong>YOUR FIX.</strong></div>
-            <a className="button button-blue hero-action" href="#how-it-works">SEE HOW IT WORKS <ArrowRight size={17} /></a>
-          </div>
-          <div className="hero-art" aria-label="Illustration of a neighbourhood map with a highlighted local issue">
-            <div className="map-topline"><span>THE LOCAL VIEW</span><span>01 / 03</span></div>
-            <div className="map-grid">
-              <span className="map-road road-one" /><span className="map-road road-two" /><span className="map-road road-three" />
-              <span className="map-block block-one" /><span className="map-block block-two" /><span className="map-block block-three" /><span className="map-block block-four" />
-              <span className="map-park">GREEN<br />SPACE</span>
-              <span className="map-pin"><MapPin size={25} fill="currentColor" /></span>
-              <span className="map-callout"><b>ISSUE SPOTTED</b><small>One report can start a conversation.</small></span>
-              <span className="map-coordinate">NEIGHBOURHOOD GRID&nbsp; / &nbsp;CONCEPT VIEW</span>
-            </div>
-            <div className="map-bottomline"><span><i /> A CLOSER LOOK AT YOUR STREETS</span><span>NOTICE · REPORT · FOLLOW</span></div>
-          </div>
-        </div>
-        <div className="hero-bottom"><span>BETTER NEIGHBOURHOODS BEGIN WITH PAYING ATTENTION.</span><a href="#issues" aria-label="Scroll to issue categories"><ArrowDown /></a></div>
-      </section>
-
-      <section className="intro wrap" id="about">
-        <div className="section-label">/ WHY CIVICFIX</div>
-        <div className="intro-content">
-          <h2>SMALL ISSUES.<br />SHARED <span>IMPACT.</span></h2>
-          <div><p>Good neighbourhoods depend on everyday things working well. But when a public problem goes unnoticed or residents do not know where to raise it, it can remain unresolved.</p><p>CivicFix aims to make that first step simpler: describe the issue, identify its location and make it easier to follow the response.</p></div>
-        </div>
-      </section>
-
-      <section className="issues-section" id="issues"><div className="wrap">
-        <div className="section-topline"><div><div className="section-label">/ WHAT CAN BE REPORTED</div><h2>EVERYDAY PROBLEMS.<br /><span>VISIBLE TO ALL.</span></h2></div><p className="section-summary">Civic concerns often start small. These are examples of the local issues CivicFix is designed to help bring forward.</p></div>
-        <div className="issue-grid">{issueTypes.map((item, index) => { const Icon = item.icon; return <article className="issue-card" key={item.title}><div className="issue-card-top"><span>0{index + 1}</span><Icon size={22} strokeWidth={1.5} /></div><h3>{item.title}</h3><p>{item.detail}</p><span className="issue-rule" /></article>; })}</div>
-      </div></section>
-
-      <section className="steps-section" id="how-it-works"><div className="wrap">
-        <div className="section-heading"><div className="section-label">/ HOW IT WORKS</div><div><h2>FROM NOTICE<br />TO <span>NEXT STEP.</span></h2><p className="section-summary">A straightforward path from seeing a problem to understanding its status.</p></div></div>
-        <div className="steps-grid">{steps.map(step => <article className="step" key={step.number}><span className="step-number">{step.number}</span><h3>{step.title}</h3><p>{step.detail}</p><ArrowDown className="step-arrow" size={21} /></article>)}</div>
-        <div className="process-note"><ShieldCheck size={18} /><p><strong>Be safe and considerate.</strong> Never put yourself at risk to document an issue. Do not trespass or include private, identifying information in a public report.</p></div>
-      </div></section>
-
-      <section className="principles wrap"><div className="section-label">/ WHAT CIVICFIX STANDS FOR</div><div className="principle-list">
-        <article><span>01 / CLARITY</span><h3>Make the problem easy to understand.</h3><p>Useful details and a clear location help turn a vague concern into something actionable.</p></article>
-        <article><span>02 / VISIBILITY</span><h3>Make progress easier to follow.</h3><p>Residents should not be left guessing about whether a concern has been seen or what happens next.</p></article>
-        <article><span>03 / COMMUNITY</span><h3>Better public spaces are shared work.</h3><p>People who notice local problems can help bring attention to the places everyone uses.</p></article>
-      </div></section>
-
-      <section className="faq-section" id="faq"><div className="wrap faq-layout">
-        <div><div className="section-label">/ GOOD TO KNOW</div><h2>QUESTIONS,<br /><span>ANSWERED.</span></h2><p className="faq-intro">A little more about the purpose and current scope of CivicFix.</p></div>
-        <div className="faq-list">{faqs.map(faq => <details className="faq-item" key={faq.question}><summary>{faq.question}<ChevronDown size={18} /></summary><p>{faq.answer}</p></details>)}</div>
-      </div></section>
-
-      <section className="closing wrap" id="get-started"><div className="section-label">/ YOUR CITY IS WORTH IT</div><div className="closing-row">
-        <h2>NOTICE MORE.<br />CARE <span>TOGETHER.</span></h2>
-        <div className="closing-aside"><p>Change can start with one person paying attention. Learn how CivicFix is designed to help make local concerns visible.</p><a className="button button-dark" href="#how-it-works">EXPLORE THE PROCESS <ArrowRight size={17} /></a><small>A CIVIC PLATFORM IN DEVELOPMENT.</small></div>
-      </div></section>
-
-      <footer className="footer wrap"><a className="brand" href="#home"><span className="brand-mark">C</span> CIVICFIX</a><span>MADE FOR BETTER COMMUNITIES.</span><a href="#faq">ABOUT THIS PREVIEW <ArrowUpRight size={13} /></a><span>© {new Date().getFullYear()} CIVICFIX</span></footer>
-    </main>
+    <div className="map-shell" role="img" aria-label="Concept illustration of a neighbourhood map with sample issue markers">
+      <div className="map-meta"><span>NEIGHBOURHOOD OVERVIEW</span><span>CONCEPT VIEW · NOT LIVE DATA</span></div>
+      <div className="map-canvas">
+        <span className="map-park park-a" /><span className="map-park park-b" />
+        <span className="map-block map-block-a" /><span className="map-block map-block-b" />
+        <span className="map-block map-block-c" /><span className="map-block map-block-d" />
+        <span className="map-road map-road-a" /><span className="map-road map-road-b" />
+        <span className="map-road map-road-c" /><span className="map-road map-road-d" />
+        <span className="map-marker marker-a"><i /></span>
+        <span className="map-marker marker-b"><i /></span>
+        <div className="map-issue-card issue-a"><span className="map-issue-icon"><Lightbulb size={15} /></span><span><b>Streetlight issue</b><small>Illustrative marker</small><em>EXAMPLE</em></span></div>
+        <div className="map-issue-card issue-b"><span className="map-issue-icon"><Construction size={15} /></span><span><b>Road concern</b><small>Illustrative marker</small><em>EXAMPLE</em></span></div>
+        <span className="map-compass">N <ArrowUpRight size={14} /></span>
+        <span className="map-scale">LOCAL VIEW / 01</span>
+      </div>
+      <div className="map-legend"><span><i className="legend-dot" /> Example issue marker</span><span>NOTICE · REPORT · FOLLOW</span></div>
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const closeMenu = () => setMenuOpen(false);
+  const navItems = [["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
+
+  return (
+    <main>
+      <header className="site-header">
+        <nav className="nav-wrap" aria-label="Main navigation">
+          <a className="brand" href="#home" onClick={closeMenu}><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a>
+          <div className="desktop-nav">{navItems.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</div>
+          <a className="nav-cta" href="#how-it-works">Explore CivicFix <ArrowUpRight size={15} /></a>
+          <button className="menu-toggle" type="button" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
+        </nav>
+        {menuOpen && <div className="mobile-nav">{navItems.map(([label, href]) => <a key={href} href={href} onClick={closeMenu}>{label}<ArrowUpRight size={15} /></a>)}</div>}
+      </header>
+
+      <section className="hero-section" id="home">
+        <div className="hero-grid-bg" />
+        <div className="page-width hero-layout">
+          <div className="hero-copy">
+            <div className="eyebrow"><span /> A COMMUNITY-LED WAY TO RAISE LOCAL ISSUES</div>
+            <p className="hero-kicker">CIVICFIX <span> / </span> THE NEIGHBOURHOOD, NOTICED</p>
+            <h1>The pulse of <span>your street,</span> restored.</h1>
+            <p className="hero-description">CivicFix aims to make local civic concerns easier to notice, understand and follow — bringing neighbourhood issues into clearer view.</p>
+            <div className="hero-actions"><a className="button button-primary" href="#how-it-works">See how it works <ArrowRight size={17} /></a><a className="button button-secondary" href="#categories">Explore issue types</a></div>
+            <div className="hero-footnote"><ShieldCheck size={17} /><span>A clearer first step towards better shared spaces.</span></div>
+          </div>
+          <NeighbourhoodMap />
+        </div>
+        <div className="page-width hero-bottomline"><span>YOUR CITY. YOUR VOICE. YOUR FIX.</span><a href="#mission">DISCOVER THE MISSION <ArrowRight size={14} /></a></div>
+      </section>
+
+      <section className="mission-section section-pad" id="mission">
+        <div className="page-width mission-layout">
+          <div className="mission-visual">
+            <div className="mission-map-card"><div className="mini-map-grid"><span /><span /><span /></div><div className="mission-map-caption"><MapPin size={17} /><span>LOCAL ISSUES, MADE VISIBLE</span></div></div>
+            <div className="mission-note"><span>THE IDEA</span><p>Better neighbourhoods begin when people can make local problems visible.</p></div>
+          </div>
+          <div className="mission-copy"><div className="section-label">01 / WHY CIVICFIX</div><h2>Mapping a better <span>future for every block.</span></h2><p>Urban issues can be easy to overlook and difficult to communicate. CivicFix is designed around a simple idea: give residents a clearer way to describe what needs attention and where it is happening.</p><p>When local concerns are easier to understand, communities have a stronger starting point for constructive action.</p><ul><li><Check size={17} /> Neighbourhood-first visibility</li><li><Check size={17} /> Clear, useful issue descriptions</li><li><Check size={17} /> A focus on shared public spaces</li></ul></div>
+        </div>
+      </section>
+
+      <section className="categories-section section-pad" id="categories"><div className="page-width">
+        <div className="section-heading"><div><div className="section-label">02 / WHAT CAN BE REPORTED</div><h2>Everyday issues.<br /><span>One shared place.</span></h2></div><p>From roads to public spaces, explore the kinds of neighbourhood concerns CivicFix is designed to bring into focus.</p></div>
+        <div className="category-grid">{issueTypes.map((item, index) => { const Icon = item.icon; return <article className="category-card" key={item.title}><div className="category-card-top"><span>0{index + 1}</span><span className="category-icon"><Icon size={21} strokeWidth={1.7} /></span></div><h3>{item.title}</h3><p>{item.detail}</p><span className="card-arrow"><ArrowUpRight size={17} /></span></article>; })}</div>
+      </div></section>
+
+      <section className="workflow-section section-pad" id="how-it-works"><div className="page-width">
+        <div className="section-heading workflow-heading"><div><div className="section-label">03 / THE PROCESS</div><h2>From noticing<br />to <span>next steps.</span></h2></div><p>A simple, human approach to raising awareness of local issues. These are the intended steps for the CivicFix experience.</p></div>
+        <div className="workflow-grid">{steps.map(step => <article className="workflow-card" key={step.n}><span className="workflow-number">{step.n}</span><div className="workflow-line" /><h3>{step.title}</h3><p>{step.text}</p><ArrowUpRight className="workflow-arrow" size={19} /></article>)}</div>
+        <div className="safety-note"><ShieldCheck size={20} /><p><strong>Stay safe while documenting an issue.</strong> Never enter unsafe areas, trespass or include private identifying information in a public report.</p></div>
+      </div></section>
+
+      <section className="principles-section section-pad"><div className="page-width"><div className="section-label">04 / OUR PRINCIPLES</div><div className="principles-grid"><article><span>01 — CLARITY</span><h3>Make the problem understandable.</h3><p>Specific locations and useful details help explain what needs attention.</p></article><article><span>02 — TRANSPARENCY</span><h3>Make the next step easier to follow.</h3><p>People should have a clearer picture of how a concern is progressing.</p></article><article><span>03 — COMMUNITY</span><h3>Care for the places we share.</h3><p>Residents can help bring attention to the streets and spaces everyone uses.</p></article></div></div></section>
+
+      <section className="faq-section section-pad" id="faq"><div className="page-width faq-layout"><div><div className="section-label">05 / SUPPORT</div><h2>Good questions.<br /><span>Clear answers.</span></h2><p>What to know about CivicFix and this website preview.</p></div><div className="faq-list">{faqs.map((faq, index) => <article className={openFaq === index ? "faq-item is-open" : "faq-item"} key={faq.q}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{faq.q}</span><ChevronDown size={19} /></button>{openFaq === index && <p>{faq.a}</p>}</article>)}</div></div></section>
+
+      <section className="closing-section"><div className="page-width closing-panel"><div className="closing-grid" /><div className="section-label">YOUR NEIGHBOURHOOD, IN FOCUS</div><h2>Better places<br />start with <span>noticing.</span></h2><p>Explore the CivicFix approach to making local concerns easier to see and understand.</p><a className="button button-light" href="#how-it-works">Explore the process <ArrowRight size={17} /></a><small>WEBSITE PREVIEW · REPORTING FEATURES IN DEVELOPMENT</small></div></section>
+
+      <footer className="site-footer"><div className="page-width footer-inner"><a className="brand footer-brand" href="#home"><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a><p>Designed around better neighbourhoods.</p><div className="footer-links"><a href="#mission">Our mission</a><a href="#categories">Issue types</a><a href="#faq">Support</a></div><span className="copyright">© {new Date().getFullYear()} CIVICFIX</span></div></footer>
+    </main>
+  );
+}
