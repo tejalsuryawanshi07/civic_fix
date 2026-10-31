@@ -66,7 +66,7 @@ function App() {
               <span className="map-park">GREEN<br />SPACE</span>
               <span className="map-pin"><MapPin size={25} fill="currentColor" /></span>
               <span className="map-callout"><b>ISSUE SPOTTED</b><small>One report can start a conversation.</small></span>
-              <span className="map-coordinate">21° 14' N&nbsp; / &nbsp;81° 38' E</span>
+              <span className="map-coordinate">NEIGHBOURHOOD GRID&nbsp; / &nbsp;CONCEPT VIEW</span>
             </div>
             <div className="map-bottomline"><span><i /> A CLOSER LOOK AT YOUR STREETS</span><span>NOTICE · REPORT · FOLLOW</span></div>
           </div>
