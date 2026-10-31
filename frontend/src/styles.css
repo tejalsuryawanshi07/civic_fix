@@ -200,3 +200,14 @@
 .report-history-entry strong{color:var(--navy);font-size:10px}
 .report-history-entry small{color:var(--muted);font-size:9px}
 .report-history-entry p{margin:0;color:var(--muted);font-size:10px;line-height:1.6;overflow-wrap:anywhere}
+
+/* On-site report evidence */
+.report-location-verify{display:grid;gap:9px;padding:13px;border:1px solid #C9DCE9;border-radius:9px;background:#F2F8FC}
+.report-location-verify>div>strong{display:flex;align-items:center;gap:7px;color:var(--navy);font-size:11px}
+.report-location-verify>div>strong svg{color:var(--blue)}
+.report-location-verify p{margin:5px 0 0;color:var(--muted);font-size:10px;line-height:1.5}
+.report-location-verify>small{color:var(--muted);font-size:9px;overflow-wrap:anywhere}
+.report-location-button{justify-self:start;min-height:36px;padding:8px 12px;border:1px solid #B7D0E1;border-radius:7px;background:#fff;color:var(--blue);font:800 10px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.report-location-button:disabled{opacity:.6;cursor:wait}
+.admin-map-link{display:inline-flex;align-items:center;gap:5px;margin-top:7px;color:var(--blue);font-size:10px;font-weight:800}
+.admin-detail-field>small{display:block;margin-top:6px;color:var(--muted);font-size:9px}
