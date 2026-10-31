@@ -51,18 +51,26 @@ function App() {
         <div className="eyebrow"><span className="eyebrow-dot" /> A COMMUNITY-LED WAY TO RAISE LOCAL ISSUES</div>
         <div className="hero-grid">
           <div className="hero-main">
-            <p className="hero-kicker">CIVICFIX / YOUR LOCAL ISSUE, MADE VISIBLE</p>
-            <h1>See a problem?<br /><span>Make it visible.</span></h1>
-            <p className="hero-subline">A clearer way to bring neighbourhood concerns forward.</p>
-            <div className="hero-sequence" aria-label="Notice, describe, follow"><span>01 <b>NOTICE</b></span><i /><span>02 <b>DESCRIBE</b></span><i /><span>03 <b>FOLLOW</b></span></div>
+            <p className="hero-kicker">CIVICFIX <span>—</span> THE NEIGHBOURHOOD, NOTICED</p>
+            <h1>Your neighbourhood,<br /><em>in focus.</em></h1>
+            <p className="hero-subline">The little things that make a place home deserve to be seen.</p>
+            <div className="hero-mantra"><span>YOUR CITY.</span><span>YOUR VOICE.</span><strong>YOUR FIX.</strong></div>
+            <a className="button button-blue hero-action" href="#how-it-works">SEE HOW IT WORKS <ArrowRight size={17} /></a>
           </div>
-          <div className="hero-aside">
-            <p className="hero-copy">A pothole on your route. A streetlight that has gone dark. Waste left uncollected. CivicFix is being built to help residents bring everyday civic problems into view—and follow what happens next.</p>
-            <a className="button button-blue" href="#how-it-works">DISCOVER HOW IT WORKS <ArrowRight size={17} /></a>
-            <div className="hero-note"><MapPin size={15} /> LOCAL ISSUES. CLEAR INFORMATION. SHARED PROGRESS.</div>
+          <div className="hero-art" aria-label="Illustration of a neighbourhood map with a highlighted local issue">
+            <div className="map-topline"><span>THE LOCAL VIEW</span><span>01 / 03</span></div>
+            <div className="map-grid">
+              <span className="map-road road-one" /><span className="map-road road-two" /><span className="map-road road-three" />
+              <span className="map-block block-one" /><span className="map-block block-two" /><span className="map-block block-three" /><span className="map-block block-four" />
+              <span className="map-park">GREEN<br />SPACE</span>
+              <span className="map-pin"><MapPin size={25} fill="currentColor" /></span>
+              <span className="map-callout"><b>ISSUE SPOTTED</b><small>One report can start a conversation.</small></span>
+              <span className="map-coordinate">21° 14' N&nbsp; / &nbsp;81° 38' E</span>
+            </div>
+            <div className="map-bottomline"><span><i /> A CLOSER LOOK AT YOUR STREETS</span><span>NOTICE · REPORT · FOLLOW</span></div>
           </div>
         </div>
-        <div className="hero-bottom"><span>NOTICE IT. DESCRIBE IT. FOLLOW IT.</span><a href="#issues" aria-label="Scroll to issue categories"><ArrowDown /></a></div>
+        <div className="hero-bottom"><span>BETTER NEIGHBOURHOODS BEGIN WITH PAYING ATTENTION.</span><a href="#issues" aria-label="Scroll to issue categories"><ArrowDown /></a></div>
       </section>
 
       <section className="intro wrap" id="about">
