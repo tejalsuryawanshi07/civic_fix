@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AuthPanel } from "./features/auth/AuthPanel";
+import { ReportPage } from "./features/reports/ReportPage";
 import { ReportCenter } from "./features/reports/ReportCenter";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Construction, Droplets,
@@ -54,7 +55,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const closeMenu = () => setMenuOpen(false);
-  const navItems = [["Report an issue", "#report"], ["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
+  const navItems = [["Report an issue", "/report"], ["How it works", "#how-it-works"], ["Categories", "#categories"], ["Our mission", "#mission"], ["FAQ", "#faq"]];
 
   return (
     <main>
@@ -76,7 +77,7 @@ export default function App() {
             <p className="hero-kicker">CIVICFIX <span> / </span> THE NEIGHBOURHOOD, NOTICED</p>
             <h1>The pulse of <span>your street,</span> restored.</h1>
             <p className="hero-description">CivicFix aims to make local civic concerns easier to notice, understand and follow — bringing neighbourhood issues into clearer view.</p>
-            <div className="hero-actions"><a className="button button-primary" href="#how-it-works">See how it works <ArrowRight size={17} /></a><a className="button button-secondary" href="#categories">Explore issue types</a></div>
+            <div className="hero-actions"><a className="button button-primary" href="/report">Report an issue <ArrowRight size={17} /></a><a className="button button-secondary" href="#how-it-works">See how it works</a></div>
             <div className="hero-footnote"><ShieldCheck size={17} /><span>A clearer first step towards better shared spaces.</span></div>
           </div>
           <NeighbourhoodMap />
@@ -99,8 +100,6 @@ export default function App() {
         <div className="category-grid">{issueTypes.map((item, index) => { const Icon = item.icon; return <article className="category-card" key={item.title}><div className="category-card-top"><span>0{index + 1}</span><span className="category-icon"><Icon size={21} strokeWidth={1.7} /></span></div><h3>{item.title}</h3><p>{item.detail}</p><span className="card-arrow"><ArrowUpRight size={17} /></span></article>; })}</div>
       </div></section>
 
-      <ReportCenter />
-
       <section className="workflow-section section-pad" id="how-it-works"><div className="page-width">
         <div className="section-heading workflow-heading"><div><div className="section-label">03 / THE PROCESS</div><h2>From noticing<br />to <span>next steps.</span></h2></div><p>A simple, human approach to raising awareness of local issues. These are the intended steps for the CivicFix experience.</p></div>
         <div className="workflow-grid">{steps.map(step => <article className="workflow-card" key={step.n}><span className="workflow-number">{step.n}</span><div className="workflow-line" /><h3>{step.title}</h3><p>{step.text}</p><ArrowUpRight className="workflow-arrow" size={19} /></article>)}</div>
@@ -111,9 +110,9 @@ export default function App() {
 
       <section className="faq-section section-pad" id="faq"><div className="page-width faq-layout"><div><div className="section-label">05 / SUPPORT</div><h2>Good questions.<br /><span>Clear answers.</span></h2><p>What to know about CivicFix and this website preview.</p></div><div className="faq-list">{faqs.map((faq, index) => <article className={openFaq === index ? "faq-item is-open" : "faq-item"} key={faq.q}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{faq.q}</span><ChevronDown size={19} /></button>{openFaq === index && <p>{faq.a}</p>}</article>)}</div></div></section>
 
-      <section className="closing-section"><div className="page-width closing-panel"><div className="closing-grid" /><div className="section-label">YOUR NEIGHBOURHOOD, IN FOCUS</div><h2>Better places<br />start with <span>noticing.</span></h2><p>Explore the CivicFix approach to making local concerns easier to see and understand.</p><a className="button button-light" href="#how-it-works">Explore the process <ArrowRight size={17} /></a><small>WEBSITE PREVIEW · REPORTING FEATURES IN DEVELOPMENT</small></div></section>
+      <section className="closing-section"><div className="page-width closing-panel"><div className="closing-grid" /><div className="section-label">YOUR NEIGHBOURHOOD, IN FOCUS</div><h2>Better places<br />start with <span>noticing.</span></h2><p>Explore the CivicFix approach to making local concerns easier to see and understand.</p><a className="button button-light" href="/report">Submit a local report <ArrowRight size={17} /></a><small>WEBSITE PREVIEW · REPORTING FEATURES IN DEVELOPMENT</small></div></section>
 
-      <footer className="site-footer"><div className="page-width footer-inner"><a className="brand footer-brand" href="#home"><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a><p>Designed around better neighbourhoods.</p><div className="footer-links"><a href="#mission">Our mission</a><a href="#categories">Issue types</a><a href="#faq">Support</a></div><span className="copyright">© {new Date().getFullYear()} CIVICFIX</span></div></footer>
+      <footer className="site-footer"><div className="page-width footer-inner"><a className="brand footer-brand" href="#home"><span className="brand-icon"><MapPin size={19} /></span><span>CivicFix</span></a><p>Designed around better neighbourhoods.</p><div className="footer-links"><a href="#mission">Our mission</a><a href="/report">Report an issue</a><a href="#categories">Issue types</a><a href="#faq">Support</a></div><span className="copyright">© {new Date().getFullYear()} CIVICFIX</span></div></footer>
     </main>
   );
 }
