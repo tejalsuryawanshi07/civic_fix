@@ -1,13 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import type { Session } from "@supabase/supabase-js";
-import { LogIn, LogOut, UserRound, X } from "lucide-react";
+import { LayoutDashboard, LogIn, LogOut, UserRound, X } from "lucide-react";
 import { supabase } from "../../utils/supabase";
 
 type AuthMode = "sign-in" | "sign-up";
 
 export function AuthPanel() {
   const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [isOpen, setIsOpen] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -40,6 +41,17 @@ export function AuthPanel() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    setIsAdmin(false);
+    if (!supabase || !session?.user.id) return () => { active = false; };
+    void supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle()
+      .then(({ data }) => {
+        if (active) setIsAdmin(data?.role === "admin");
+      });
+    return () => { active = false; };
+  }, [session?.user.id]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -114,6 +126,9 @@ export function AuthPanel() {
       {session ? (
         <div className="auth-signed-in">
           <span className="auth-user" title="Signed in"><UserRound size={15} /> {displayName}</span>
+          {isAdmin && window.location.pathname.replace(/\\/+$/, "") !== "/admin" && (
+            <a className="auth-trigger auth-admin-link" href="/admin"><LayoutDashboard size={15} /><span>Admin Dashboard</span></a>
+          )}
           <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /><span>Sign out</span></button>
         </div>
       ) : (
