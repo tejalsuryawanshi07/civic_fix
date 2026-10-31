@@ -4,7 +4,7 @@ AI-assisted civic issue reporting and resolution platform.
 
 ## Deployment-first approach
 
-CivicFix is designed to be deployed as a public demo and shared through a website URL. The project does not require a local multi-service setup, Docker, Redis, or a separately hosted AI server.
+CivicFix is designed to be deployed as a public demo and shared through a website URL. The project does not require a local multi-service setup, Docker, Redis, Kubernetes, or a separately hosted AI server.
 
 ## Planned hosting
 
@@ -22,6 +22,13 @@ CivicFix is designed to be deployed as a public demo and shared through a websit
 - [Deployment and dependencies](docs/DEPENDENCIES.md)
 - [UI design system](docs/UI_DESIGN_SYSTEM.md)
 
+## Authentication
+
+CivicFix uses Supabase Auth for citizen email/password registration and sign-in. Supabase manages credentials; `public.profiles` stores application profile data and a server-controlled role. New public registrations always receive the `citizen` role. Never expose a Supabase secret/service-role key in frontend code.
+
 ## Project status
 
-Phase 1 — deployment-first architecture. Application implementation will follow after the architecture is approved.
+- Frontend landing page and Supabase client foundation committed.
+- Citizen email/password authentication UI committed.
+- Initial profiles migration prepared in `supabase/migrations/`.
+- Complaint reporting, tracking, backend APIs, and admin workflows are still under development.
