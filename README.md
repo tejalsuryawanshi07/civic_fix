@@ -31,4 +31,13 @@ CivicFix uses Supabase Auth for citizen email/password registration and sign-in.
 - Frontend landing page and Supabase client foundation committed.
 - Citizen email/password authentication UI committed.
 - Initial profiles migration prepared in `supabase/migrations/`.
-- Complaint reporting, tracking, backend APIs, and admin workflows are still under development.
+- Citizen complaint submission and personal report history are implemented in the frontend.
+- Apply `supabase/migrations/20261031000200_create_reports.sql` in the Supabase SQL Editor to create the reports table, RLS policies, and private photo bucket.
+- Admin review, department assignment, and live status updates are not implemented yet.
+
+## Citizen reporting setup
+
+1. Open the Supabase project SQL Editor.
+2. Run `supabase/migrations/20261031000200_create_reports.sql` after the profiles migration.
+3. Confirm the `reports` table exists and the private `report-photos` storage bucket was created.
+4. Ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are set in the local frontend environment and in Vercel, then redeploy.
