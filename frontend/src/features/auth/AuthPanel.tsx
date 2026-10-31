@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import type { Session } from "@supabase/supabase-js";
 import { LogIn, LogOut, UserRound, X } from "lucide-react";
 import { supabase } from "../../utils/supabase";
@@ -120,7 +121,7 @@ export function AuthPanel() {
         </div>
       )}
 
-      {isOpen && !session && (
+      {isOpen && !session && createPortal(
         <div className="auth-backdrop" onMouseDown={(event) => {
           if (event.target === event.currentTarget && !busy) setIsOpen(false);
         }}>
@@ -129,11 +130,6 @@ export function AuthPanel() {
             <div className="auth-brand"><span className="brand-icon"><UserRound size={17} /></span><span>CivicFix account</span></div>
             <h2 id="auth-title">{mode === "sign-in" ? "Welcome back." : "Join your neighbourhood."}</h2>
             <p className="auth-intro" id="auth-description">{mode === "sign-in" ? "Sign in to access your citizen account." : "Create your account to get started with CivicFix."}</p>
-
-            <div className="auth-tabs" role="tablist" aria-label="Account access">
-              <button type="button" role="tab" aria-selected={mode === "sign-in"} className={mode === "sign-in" ? "active" : ""} onClick={() => { setMode("sign-in"); setError(""); setMessage(""); }}>Sign in</button>
-              <button type="button" role="tab" aria-selected={mode === "sign-up"} className={mode === "sign-up" ? "active" : ""} onClick={() => { setMode("sign-up"); setError(""); setMessage(""); }}>Sign up</button>
-            </div>
 
             <form onSubmit={submit} className="auth-form">
               {mode === "sign-up" && (
@@ -154,15 +150,10 @@ export function AuthPanel() {
 
             {error && <p className="auth-feedback error" role="alert">{error}</p>}
             {message && <p className="auth-feedback success" role="status">{message}</p>}
-            <p className="auth-switch-copy">
-              {mode === "sign-in" ? "New to CivicFix?" : "Already have an account?"}{" "}
-              <button type="button" onClick={() => { setMode(mode === "sign-in" ? "sign-up" : "sign-in"); setError(""); setMessage(""); }}>
-                {mode === "sign-in" ? "Create an account" : "Sign in"}
-              </button>
-            </p>
             <p className="auth-privacy">Your password is securely managed by Supabase. Public registrations receive citizen access.</p>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
