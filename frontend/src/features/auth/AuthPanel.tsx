@@ -117,7 +117,6 @@ export function AuthPanel() {
       ) : (
         <div className="auth-entry-actions">
           <button className="auth-trigger" type="button" onClick={() => openAuth("sign-in")}><LogIn size={15} /><span>Sign in</span></button>
-          <button className="auth-trigger auth-trigger-primary" type="button" onClick={() => openAuth("sign-up")}>Sign up</button>
         </div>
       )}
 
