@@ -120,5 +120,5 @@ function HomePage() {
  
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  return path === "/report" ? <ReportPage /> : <HomePage />;
+  return path === "/admin" ? <AdminPage /> : path === "/report" ? <ReportPage /> : <HomePage />;
 }
