@@ -23,7 +23,7 @@ const steps = [
 const faqs = [
   { q: "What kind of issues can CivicFix help highlight?", a: "CivicFix is designed around shared neighbourhood concerns such as damaged roads, waste collection, street lighting, drainage, water leaks and public-space maintenance." },
   { q: "What should I include in a report?", a: "Include a clear description and a specific location. If it is safe and appropriate, a recent photo can help explain the issue. Avoid sharing personal or identifying information." },
-  { q: "Can I submit and track a report right now?", a: "Not yet. This is the CivicFix website preview. Online report submission, authentication and live status tracking are not connected in this version." },
+  { q: "Can I submit and track a report right now?", a: "Account registration and sign-in are available when Supabase is configured. Online report submission and live status tracking are still in development." },
   { q: "Does CivicFix carry out repairs?", a: "No. CivicFix is intended to help residents raise awareness of local concerns. Repairs and official decisions remain the responsibility of the relevant civic authority." },
 ];
 
