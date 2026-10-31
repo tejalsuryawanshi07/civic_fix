@@ -145,3 +145,19 @@
 .report-safety{display:flex;align-items:flex-start;gap:9px;margin-top:19px;color:var(--muted);font-size:10px;line-height:1.7}
 .report-safety svg{flex:0 0 auto;color:var(--blue)}
 @media(max-width:740px){.report-layout{grid-template-columns:1fr}.report-form,.my-reports{padding:20px}.report-form-heading{align-items:flex-start;flex-direction:column}.report-form-heading small{max-width:100%}}
+
+
+/* Dedicated citizen reporting page */
+.report-page{min-height:100vh;background:var(--bg)}
+.report-page-nav{display:flex;align-items:center;gap:16px}
+.report-back-link{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;font-weight:800;transition:color .2s}
+.report-back-link:hover{color:var(--blue)}
+.report-page-intro{padding:62px 0 34px;background:linear-gradient(180deg,#EAF2F7 0%,#F4F8FA 100%)}
+.report-page-intro h1{margin:18px 0 12px;color:var(--navy);font-size:clamp(36px,5vw,54px);line-height:1.06;letter-spacing:-.06em}
+.report-page-intro h1 span{color:var(--bright)}
+.report-page-intro p{max-width:590px;margin:0;color:var(--muted);font-size:13px;line-height:1.8}
+.report-page .report-section{padding:30px 0 78px;background:#F4F8FA}
+.report-page .report-heading{display:none}
+.report-page .report-safety{margin-top:22px}
+@media(max-width:740px){.report-page-nav{gap:8px}.report-back-link{font-size:10px}.report-page-intro{padding:42px 0 24px}.report-page-intro h1{font-size:39px}.report-page .report-section{padding:20px 0 55px}}
+@media(max-width:420px){.report-page-nav{gap:5px}.report-back-link{font-size:0;gap:0}.report-back-link svg{width:19px;height:19px}}
