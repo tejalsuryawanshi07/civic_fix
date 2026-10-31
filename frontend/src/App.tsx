@@ -32,6 +32,7 @@ function App() {
 
   return (
     <main>
+      <div className="utility-strip"><div className="utility-inner">PLATFORM PREVIEW · CIVICFIX</div></div>
       <nav className="nav wrap" aria-label="Main navigation">
         <a className="brand" href="#home" aria-label="CivicFix home" onClick={closeMenu}><span className="brand-mark">C</span> CIVICFIX</a>
         <div className="nav-links">
