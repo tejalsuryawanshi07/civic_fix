@@ -18,14 +18,20 @@ export function AuthPanel() {
 
   useEffect(() => {
     if (!supabase) return;
-
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted) setSession(data.session);
+
+    void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!mounted) return;
+      if (sessionError) setError(sessionError.message);
+      setSession(data.session);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      if (nextSession) {
+        setIsOpen(false);
+        setPassword("");
+      }
     });
 
     return () => {
@@ -34,13 +40,29 @@ export function AuthPanel() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !busy) setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, busy]);
+
+  const openAuth = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setError("");
+    setMessage("");
+    setIsOpen(true);
+  };
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
     setMessage("");
 
     if (!supabase) {
-      setError("Authentication is not configured yet. Add the Supabase environment variables to your deployment.");
+      setError("Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to frontend/.env, then restart the development server.");
       return;
     }
 
@@ -50,81 +72,95 @@ export function AuthPanel() {
         const { data, error: authError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { full_name: fullName.trim() } },
+          options: {
+            data: { full_name: fullName.trim() },
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (authError) throw authError;
-        if (data.session) {
-          setMessage("Your CivicFix account has been created.");
-        } else {
-          setMessage("Account created. Check your email for the confirmation link before signing in.");
-        }
+        setPassword("");
+        setMessage(data.session
+          ? "Your CivicFix account is ready. You're signed in."
+          : "Account created. Check your inbox and confirm your email before signing in.");
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (authError) throw authError;
-        setMessage("You're signed in.");
+        setPassword("");
+        setMessage("Sign-in successful.");
       }
-      setPassword("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Something went wrong. Please try again.");
+      setError(cause instanceof Error ? cause.message : "We couldn't complete that request. Please try again.");
     } finally {
       setBusy(false);
     }
   };
 
-  const openAuth = (nextMode: AuthMode) => {
-    setMode(nextMode);
-    setError("");
-    setMessage("");
-    setIsOpen(true);
-  };
-
   const signOut = async () => {
     if (!supabase) return;
+    setError("");
     const { error: authError } = await supabase.auth.signOut();
     if (authError) setError(authError.message);
-    else {
-      setMessage("You have been signed out.");
-      setIsOpen(false);
-    }
+    else setMessage("You have been signed out.");
   };
 
   return (
     <>
       {session ? (
         <div className="auth-signed-in">
-          <span className="auth-user"><UserRound size={15} /> {session.user.email}</span>
-          <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /> Sign out</button>
+          <span className="auth-user" title={session.user.email ?? "Signed in"}><UserRound size={15} /> {session.user.email}</span>
+          <button className="auth-trigger" type="button" onClick={signOut}><LogOut size={15} /><span>Sign out</span></button>
         </div>
       ) : (
         <div className="auth-entry-actions">
-          <button className="auth-trigger" type="button" onClick={() => openAuth("sign-in")}><LogIn size={15} /> Sign in</button>
+          <button className="auth-trigger" type="button" onClick={() => openAuth("sign-in")}><LogIn size={15} /><span>Sign in</span></button>
           <button className="auth-trigger auth-trigger-primary" type="button" onClick={() => openAuth("sign-up")}>Sign up</button>
         </div>
       )}
 
       {isOpen && !session && (
-        <div className="auth-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
-          <section className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-            <button className="auth-close" type="button" aria-label="Close sign in" onClick={() => setIsOpen(false)}><X size={19} /></button>
-            <div className="section-label">CIVICFIX ACCOUNT</div>
+        <div className="auth-backdrop" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !busy) setIsOpen(false);
+        }}>
+          <section className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title" aria-describedby="auth-description">
+            <button className="auth-close" type="button" aria-label="Close authentication dialog" onClick={() => setIsOpen(false)} disabled={busy}><X size={19} /></button>
+            <div className="auth-brand"><span className="brand-icon"><UserRound size={17} /></span><span>CivicFix account</span></div>
             <h2 id="auth-title">{mode === "sign-in" ? "Welcome back." : "Join your neighbourhood."}</h2>
-            <p className="auth-intro">{mode === "sign-in" ? "Sign in to continue to your citizen account." : "Create an account to get started with CivicFix."}</p>
-            <div className="auth-tabs">
-              <button type="button" className={mode === "sign-in" ? "active" : ""} onClick={() => { setMode("sign-in"); setError(""); setMessage(""); }}>Sign in</button>
-              <button type="button" className={mode === "sign-up" ? "active" : ""} onClick={() => { setMode("sign-up"); setError(""); setMessage(""); }}>Create account</button>
+            <p className="auth-intro" id="auth-description">{mode === "sign-in" ? "Sign in to access your citizen account." : "Create your account to get started with CivicFix."}</p>
+
+            <div className="auth-tabs" role="tablist" aria-label="Account access">
+              <button type="button" role="tab" aria-selected={mode === "sign-in"} className={mode === "sign-in" ? "active" : ""} onClick={() => { setMode("sign-in"); setError(""); setMessage(""); }}>Sign in</button>
+              <button type="button" role="tab" aria-selected={mode === "sign-up"} className={mode === "sign-up" ? "active" : ""} onClick={() => { setMode("sign-up"); setError(""); setMessage(""); }}>Sign up</button>
             </div>
+
             <form onSubmit={submit} className="auth-form">
-              {mode === "sign-up" && <label>Full name<input autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required maxLength={100} /></label>}
-              <label>Email address<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-              <label>Password<input type="password" autoComplete={mode === "sign-in" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required /></label>
-              <button className="button button-primary auth-submit" type="submit" disabled={busy}>{busy ? "Please wait…" : mode === "sign-in" ? "Sign in" : "Create account"}</button>
+              {mode === "sign-up" && (
+                <label>Full name
+                  <input autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required maxLength={100} placeholder="Enter your full name" />
+                </label>
+              )}
+              <label>Email address
+                <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required placeholder="you@example.com" />
+              </label>
+              <label>Password
+                <input type="password" autoComplete={mode === "sign-in" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={mode === "sign-up" ? 8 : undefined} required placeholder={mode === "sign-up" ? "At least 8 characters" : "Enter your password"} />
+              </label>
+              <button className="button button-primary auth-submit" type="submit" disabled={busy}>
+                {busy ? "Please wait…" : mode === "sign-in" ? "Sign in to CivicFix" : "Create my account"}
+              </button>
             </form>
+
             {error && <p className="auth-feedback error" role="alert">{error}</p>}
             {message && <p className="auth-feedback success" role="status">{message}</p>}
-            <p className="auth-privacy">Passwords are handled by Supabase Auth. Public sign-up creates citizen accounts only.</p>
+            <p className="auth-switch-copy">
+              {mode === "sign-in" ? "New to CivicFix?" : "Already have an account?"}{" "}
+              <button type="button" onClick={() => { setMode(mode === "sign-in" ? "sign-up" : "sign-in"); setError(""); setMessage(""); }}>
+                {mode === "sign-in" ? "Create an account" : "Sign in"}
+              </button>
+            </p>
+            <p className="auth-privacy">Your password is securely managed by Supabase. Public registrations receive citizen access.</p>
           </section>
         </div>
       )}
